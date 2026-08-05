@@ -1,0 +1,17 @@
+C:\Users\usuario\Desktop\ALICES\corp-backend\src\Alices\Alices.Infrastructure\bin\Debug\net10.0\Alices.Infrastructure.deps.json
+C:\Users\usuario\Desktop\ALICES\corp-backend\src\Alices\Alices.Infrastructure\bin\Debug\net10.0\Alices.Infrastructure.dll
+C:\Users\usuario\Desktop\ALICES\corp-backend\src\Alices\Alices.Infrastructure\bin\Debug\net10.0\Alices.Infrastructure.pdb
+C:\Users\usuario\Desktop\ALICES\corp-backend\src\Alices\Alices.Infrastructure\bin\Debug\net10.0\Alices.Application.dll
+C:\Users\usuario\Desktop\ALICES\corp-backend\src\Alices\Alices.Infrastructure\bin\Debug\net10.0\Alices.Domain.dll
+C:\Users\usuario\Desktop\ALICES\corp-backend\src\Alices\Alices.Infrastructure\bin\Debug\net10.0\Alices.Application.pdb
+C:\Users\usuario\Desktop\ALICES\corp-backend\src\Alices\Alices.Infrastructure\bin\Debug\net10.0\Alices.Domain.pdb
+C:\Users\usuario\Desktop\ALICES\corp-backend\src\Alices\Alices.Infrastructure\obj\Debug\net10.0\Alices.Infrastructure.csproj.AssemblyReference.cache
+C:\Users\usuario\Desktop\ALICES\corp-backend\src\Alices\Alices.Infrastructure\obj\Debug\net10.0\Alices.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\usuario\Desktop\ALICES\corp-backend\src\Alices\Alices.Infrastructure\obj\Debug\net10.0\Alices.Infrastructure.AssemblyInfoInputs.cache
+C:\Users\usuario\Desktop\ALICES\corp-backend\src\Alices\Alices.Infrastructure\obj\Debug\net10.0\Alices.Infrastructure.AssemblyInfo.cs
+C:\Users\usuario\Desktop\ALICES\corp-backend\src\Alices\Alices.Infrastructure\obj\Debug\net10.0\Alices.Infrastructure.csproj.CoreCompileInputs.cache
+C:\Users\usuario\Desktop\ALICES\corp-backend\src\Alices\Alices.Infrastructure\obj\Debug\net10.0\Alices.I.609CD79A.Up2Date
+C:\Users\usuario\Desktop\ALICES\corp-backend\src\Alices\Alices.Infrastructure\obj\Debug\net10.0\Alices.Infrastructure.dll
+C:\Users\usuario\Desktop\ALICES\corp-backend\src\Alices\Alices.Infrastructure\obj\Debug\net10.0\refint\Alices.Infrastructure.dll
+C:\Users\usuario\Desktop\ALICES\corp-backend\src\Alices\Alices.Infrastructure\obj\Debug\net10.0\Alices.Infrastructure.pdb
+C:\Users\usuario\Desktop\ALICES\corp-backend\src\Alices\Alices.Infrastructure\obj\Debug\net10.0\ref\Alices.Infrastructure.dll

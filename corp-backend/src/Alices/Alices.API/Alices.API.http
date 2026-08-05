@@ -1,0 +1,6 @@
+@Alices.API_HostAddress = http://localhost:5225
+
+GET {{Alices.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
