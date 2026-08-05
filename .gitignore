@@ -1,0 +1,49 @@
+# ---------- .NET ----------
+bin/
+obj/
+out/
+*.user
+*.suo
+*.cache
+*.dll
+*.pdb
+*.exe
+.vs/
+.vscode/
+*.swp
+
+# Publish / publish profiles
+Publish/
+*.pubxml
+
+# EF Core migrations locales
+*.db
+*.db-shm
+*.db-wal
+
+# Secretos locales
+appsettings.*.Local.json
+secrets.json
+
+# ---------- Node / Angular ----------
+node_modules/
+dist/
+tmp/
+out-tsc/
+.angular/
+.sass-cache/
+coverage/
+npm-debug.log
+yarn-error.log
+
+# ---------- IDEs y editores ----------
+.idea/
+*.sublime-workspace
+.history/
+
+# ---------- Sistema ----------
+.DS_Store
+Thumbs.db
+
+# ---------- Documentación local ----------
+CLEAN ARCHITECTURE/
