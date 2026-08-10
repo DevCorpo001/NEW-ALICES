@@ -30,6 +30,10 @@ Complemento de UX/proyecto (también obligatorio):
 
 **→ [`corp-frontend/FRONTEND.md`](corp-frontend/FRONTEND.md)**
 
+Arquitectura y reglas de escalabilidad:
+
+**→ [`corp-frontend/ARCHITECTURE.md`](corp-frontend/ARCHITECTURE.md)**
+
 Resumen:
 
 - Angular standalone + Tailwind + Spartan/ng (según skill)

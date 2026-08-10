@@ -4,7 +4,7 @@ Documento de referencia obligatoria para todo desarrollo en `corp-backend`.
 Basado en el proyecto de referencia `CLEAN ARCHITECTURE/`.
 Cualquier feature, fix o refactor **debe** respetar esta estructura y estos patrones.
 
-Target: **.NET 10** (`net10.0`). Alinear paquetes NuGet a majors estables de net10 (EF Core 10.x, Npgsql 10.x, etc.).
+Target: **.NET 10** (`net10.0`). Alinear paquetes NuGet a majors estables de net10 (EF Core 10.x, Microsoft.Data.SqlClient 6.x, etc.).
 
 ---
 
@@ -51,7 +51,7 @@ API ──► Application ──► Domain
 | Runtime | .NET 10 (`net10.0`) | todos |
 | Mensajería (CQRS) | MediatR (+ MediatR.Contracts en Domain) | Application / Domain |
 | Validación | FluentValidation (+ DI extensions) | Application |
-| ORM (escritura) | EF Core + Npgsql | Infrastructure |
+| ORM (escritura) | EF Core + SQL Server provider | Infrastructure |
 | Naming DB | EFCore.NamingConventions (`UseSnakeCaseNamingConvention`) | Infrastructure |
 | Lecturas | Dapper vía `ISqlConnectionFactory` | Application (handlers) / Infrastructure (factory) |
 | Logging | Microsoft.Extensions.Logging.Abstractions | Application (behaviors) |
@@ -241,6 +241,7 @@ Infrastructure/
   DependencyInjection.cs
   Configurations/          # IEntityTypeConfiguration por entidad
   Repositories/
+  Authentication/          # hash de contraseñas y emisión de tokens
   Clock/DateTimeProvider.cs
   Email/EmailService.cs
   Data/SqlConnectionFactory.cs
@@ -268,7 +269,7 @@ var cs = configuration.GetConnectionString("Database")
     ?? throw new ArgumentNullException(nameof(configuration));
 
 services.AddDbContext<ApplicationDbContext>(o =>
-    o.UseNpgsql(cs).UseSnakeCaseNamingConvention());
+    o.UseSqlServer(cs).UseSnakeCaseNamingConvention());
 
 services.AddScoped<IUserRepository, UserRepository>();
 // ... un registro por repositorio
@@ -285,6 +286,17 @@ services.AddSingleton<ISqlConnectionFactory>(_ => new SqlConnectionFactory(cs));
 - `Moneda` → `OwnsOne` + conversión de `TipoMoneda`
 - Relaciones: `HasOne<Otro>().WithMany().HasForeignKey(...)` sin navegación inversa
 - Índices únicos donde aplique
+
+### 4.4 Autenticación y bootstrap
+
+- Los contratos de autenticación (`IPasswordHasher`, `IJwtTokenGenerator`) viven en `Application/Abstractions/Authentication/`.
+- Sus implementaciones viven en `Infrastructure/Authentication/`; el dominio no conoce JWT, BCrypt ni configuración.
+- `JwtBearer` se configura en API (composition root). Secret, issuer, audience y duración se leen de `Jwt:*` y no se duplican en handlers.
+- Un caso de uso de autenticación que solo consulta credenciales puede usar Dapper; no debe cargar el agregado con EF ni ejecutar `UnitOfWork` si no hay mutación.
+- El bootstrap de la aplicación (migraciones y seed idempotente) pertenece a API/Extensions y solo se ejecuta explícitamente en Development.
+- El seed usa factories del dominio y servicios definidos por Application cuando crea datos de dominio; nunca guarda hashes de contraseñas en texto plano.
+- Para sesiones web, el JWT se entrega mediante cookie HttpOnly, con SameSite y Secure configurables; nunca se expone en una respuesta accesible a JavaScript.
+- JwtBearer debe aceptar el token desde la cookie configurada y la API debe exponer operaciones explícitas para consultar la sesión y cerrarla.
 
 ---
 
@@ -329,6 +341,8 @@ public class AlquileresController : ControllerBase
 
 - Solo `ISender` (MediatR). Nunca repos, DbContext ni servicios de dominio.
 - Mapear `Result` → HTTP status.
+- Endpoints públicos de autenticación deben declarar `[AllowAnonymous]` explícitamente.
+- Credenciales inválidas o usuarios no habilitados se mapean a 401; validación de entrada a 400; recursos inexistentes a 404.
 - CORS para Angular (`http://localhost:4200`) en desarrollo.
 - `Program.cs`: `AddApplication()` + `AddInfrastructure(config)` + middleware de excepciones.
 

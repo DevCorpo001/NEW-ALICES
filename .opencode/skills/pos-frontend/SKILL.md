@@ -1,17 +1,14 @@
 ---
 name: pos-frontend
-description: Convenciones de arquitectura, diseño y estilo para el frontend Angular + Tailwind (corp-frontend / POS). OBLIGATORIO cargar este skill siempre que se cree, edite o revise un componente, servicio, store, ruta, directiva o pantalla en corp-frontend. También al revisar PRs o proponer UI del front.
+description: Convenciones de arquitectura, diseño y estilo para el frontend Angular + Tailwind del sistema POS. Usar siempre que se cree, edite o revise un componente, servicio, store o pantalla del frontsend de este proyecto.
 license: MIT
 ---
 
 # Frontend POS — Angular + Tailwind
 
-Este skill define cómo se construye el frontend de este proyecto para que cualquier
+Este skill define cómo se construye el frontend de este POS para que cualquier
 sesión de IA (o desarrollador nuevo) mantenga consistencia, sin tener que
 redescubrir las reglas cada vez.
-
-**Complemento UX del repo:** `corp-frontend/FRONTEND.md` (navegación por Enter,
-autofocus, botón primario). Cargar este skill y respetar también ese MD.
 
 ## Stack
 
