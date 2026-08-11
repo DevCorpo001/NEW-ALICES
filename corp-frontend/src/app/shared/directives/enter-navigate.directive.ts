@@ -1,13 +1,24 @@
-import { AfterViewInit, Directive, ElementRef, HostListener, inject } from '@angular/core';
+import {
+  AfterViewInit,
+  Directive,
+  ElementRef,
+  HostListener,
+  Input,
+  inject,
+} from '@angular/core';
 
 @Directive({
   selector: '[appEnterNavigate]'
 })
 export class EnterNavigateDirective implements AfterViewInit {
+  @Input() appEnterNavigateFocus = true;
+
   private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
 
   ngAfterViewInit(): void {
-    queueMicrotask(() => this.firstControl()?.focus());
+    if (this.appEnterNavigateFocus) {
+      queueMicrotask(() => this.firstControl()?.focus());
+    }
   }
 
   @HostListener('keydown', ['$event'])

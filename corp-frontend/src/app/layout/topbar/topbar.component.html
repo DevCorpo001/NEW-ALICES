@@ -6,9 +6,9 @@
       #menuButton
       type="button"
       (click)="menuToggled.emit()"
-      aria-label="Abrir menú"
+      [attr.aria-label]="menuExpanded() ? 'Cerrar menú' : 'Abrir menú'"
       [attr.aria-expanded]="menuExpanded()"
-      class="rounded-lg p-2 text-slate-600 transition hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:text-slate-300 dark:hover:bg-slate-800 lg:hidden"
+      class="rounded-lg p-2 text-slate-600 transition hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:text-slate-300 dark:hover:bg-slate-800"
     >
       <ng-icon name="lucideMenu" size="1.5rem" />
     </button>

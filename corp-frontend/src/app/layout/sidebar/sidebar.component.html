@@ -1,5 +1,5 @@
 <div
-  class="fixed inset-0 z-40 bg-slate-950/60 backdrop-blur-sm transition-opacity duration-200 lg:hidden"
+  class="fixed inset-0 z-40 bg-slate-950/60 backdrop-blur-sm transition-opacity duration-200"
   [class.opacity-100]="isOpen()"
   [class.opacity-0]="!isOpen()"
   [class.pointer-events-none]="!isOpen()"
@@ -8,76 +8,69 @@
 ></div>
 
 <aside
-  class="fixed inset-y-0 left-0 z-50 flex flex-col bg-slate-900 transition-all duration-200 lg:translate-x-0"
-  [style.width]="width()"
+  class="fixed inset-y-0 left-0 z-50 flex w-72 flex-col bg-slate-900 transition-transform duration-200"
   [class.translate-x-0]="isOpen()"
   [class.-translate-x-full]="!isOpen()"
   aria-label="Menú de navegación"
 >
-  <!-- Marca -->
-  <header
-    class="flex h-16 shrink-0 items-center gap-3 border-b border-white/10 px-4"
-    [class.lg:justify-center]="collapsed()"
-  >
+  <header class="flex h-16 shrink-0 items-center gap-3 border-b border-white/10 px-4">
     <a
       routerLink="/"
       (click)="closed.emit()"
       title="Ir al inicio"
       class="flex min-w-0 items-center gap-3 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-      [class.lg:hidden]="collapsed()"
     >
       <span
         class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white p-1"
       >
-        <img src="/images/logo_sin_slogan.png" alt="Alice's" class="h-full w-full object-contain" />
+        <img
+          src="/images/logo_sin_slogan.png"
+          alt="Alice's"
+          class="h-full w-full object-contain"
+        />
       </span>
       <span class="min-w-0 leading-tight">
-        <span class="block text-base font-bold tracking-tight text-white">Alice's</span>
-        <span class="block text-xs font-medium text-slate-400">Sistema POS</span>
+        <span class="block text-xl font-bold tracking-tight text-white">Alice's</span>
       </span>
     </a>
 
     <button
       #menuButton
       type="button"
-      (click)="menuClicked.emit()"
-      [attr.aria-label]="collapsed() ? 'Expandir menú' : 'Contraer menú'"
-      [title]="collapsed() ? 'Expandir menú' : 'Contraer menú'"
+      (click)="closed.emit()"
+      aria-label="Cerrar menú"
+      title="Cerrar menú"
       class="ml-auto rounded-lg p-2 text-slate-300 transition hover:bg-slate-800 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-      [class.lg:ml-0]="collapsed()"
     >
       <ng-icon name="lucideMenu" size="1.25rem" />
     </button>
   </header>
 
-  <!-- Navegación -->
-  <nav class="flex-1 overflow-y-auto px-3 py-4" aria-label="Menú principal">
+  <nav
+    class="sidebar-scroll flex-1 overflow-y-auto overscroll-contain px-3 py-4"
+    aria-label="Menú principal"
+  >
     <ul class="space-y-1">
       @for (item of navItems; track item.route ?? item.label) {
         @if (item.children?.length) {
           <li>
             <button
               type="button"
-              (click)="onModuleClick(item)"
+              (click)="onModuleClick(item.route!)"
               [attr.aria-expanded]="isExpanded(item.route!)"
-              [attr.aria-label]="collapsed() ? item.label : null"
-              [title]="collapsed() ? item.label : null"
-              class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-300 transition hover:bg-slate-800 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              [title]="item.label"
+              class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-300 transition hover:bg-slate-800 hover:text-white hover:ring-2 hover:ring-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               [class.bg-primary]="isActive(item)"
               [class.text-white]="isActive(item)"
-              [class.lg:justify-center]="collapsed()"
             >
               <ng-icon name="{{ item.icon }}" size="1.25rem" aria-hidden="true" />
-              <span class="flex-1 truncate text-left" [class.lg:hidden]="collapsed()">
-                {{ item.label }}
-              </span>
+              <span class="flex-1 truncate text-left">{{ item.label }}</span>
               <ng-icon
                 name="lucideChevronDown"
                 size="1rem"
                 aria-hidden="true"
                 class="transition-transform"
                 [class.rotate-180]="isExpanded(item.route!)"
-                [class.lg:hidden]="collapsed()"
               />
             </button>
 
@@ -85,7 +78,6 @@
               <ul
                 class="mt-1 ml-3 space-y-1 border-l border-slate-700/60 pl-4"
                 [attr.aria-label]="'Submenú de ' + item.label"
-                [class.lg:hidden]="collapsed()"
               >
                 @for (sub of item.children; track sub.route) {
                   <li>
@@ -94,7 +86,7 @@
                       routerLinkActive="bg-slate-800 text-white"
                       #subLink="routerLinkActive"
                       [attr.aria-current]="subLink.isActive ? 'page' : null"
-                      class="block rounded-lg px-3 py-2 text-sm font-medium text-slate-400 transition hover:bg-slate-800 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                      class="block rounded-lg px-3 py-2 text-sm font-medium text-slate-400 transition hover:bg-slate-800 hover:text-white hover:ring-2 hover:ring-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                       (click)="closed.emit()"
                     >
                       {{ sub.label }}
@@ -112,14 +104,12 @@
               [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
               #link="routerLinkActive"
               [attr.aria-current]="link.isActive ? 'page' : null"
-              [attr.aria-label]="collapsed() ? item.label : null"
-              [title]="collapsed() ? item.label : null"
-              class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-300 transition hover:bg-slate-800 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
-              [class.lg:justify-center]="collapsed()"
+              [title]="item.label"
+              class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-300 transition hover:bg-slate-800 hover:text-white hover:ring-2 hover:ring-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
               (click)="closed.emit()"
             >
               <ng-icon name="{{ item.icon }}" size="1.25rem" aria-hidden="true" />
-              <span class="truncate" [class.lg:hidden]="collapsed()">{{ item.label }}</span>
+              <span class="truncate">{{ item.label }}</span>
             </a>
           </li>
         }
