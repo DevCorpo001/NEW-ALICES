@@ -3,9 +3,14 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideBox,
+  lucideCheck,
   lucideCopy,
+  lucideEraser,
+  lucideEye,
   lucideHistory,
   lucideImage,
+  lucideLayers,
+  lucideLightbulb,
   lucideLock,
   lucidePackagePlus,
   lucidePackageSearch,
@@ -16,6 +21,7 @@ import {
   lucideSearch,
   lucideTrash,
   lucideUpload,
+  lucideX,
 } from '@ng-icons/lucide';
 import { EnterNavigateDirective } from '../../../../shared/directives/enter-navigate.directive';
 import { EnterPrimaryDirective } from '../../../../shared/directives/enter-primary.directive';
@@ -38,9 +44,14 @@ interface PrecioRow {
   providers: [
     provideIcons({
       lucideBox,
+      lucideCheck,
       lucideCopy,
+      lucideEraser,
+      lucideEye,
       lucideHistory,
       lucideImage,
+      lucideLayers,
+      lucideLightbulb,
       lucideLock,
       lucidePackagePlus,
       lucidePackageSearch,
@@ -51,6 +62,7 @@ interface PrecioRow {
       lucideSearch,
       lucideTrash,
       lucideUpload,
+      lucideX,
     }),
   ],
   templateUrl: './productos.component.html',

@@ -60,7 +60,7 @@
   <!-- ==========================================
        MAIN GRID (2 Columnas)
        ========================================== -->
-  <div class="grid grid-cols-1 items-start gap-4 xl:grid-cols-[65%_1fr]">
+  <div class="grid grid-cols-1 items-start gap-4 md:grid-cols-[65%_1fr]">
     
     <!-- COLUMNA IZQUIERDA (Formulario) -->
     <div class="flex flex-col gap-4">
@@ -87,16 +87,16 @@
           <div class="grid grid-cols-1 gap-x-6 gap-y-3 md:grid-cols-2">
             <!-- Fila 1 -->
             <div class="flex items-center">
-              <label class="w-36 shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400">Código Producto: <span class="text-error">*</span></label>
+              <label class="w-28 shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400 lg:w-36">Código Producto: <span class="text-error">*</span></label>
               <input type="text" formControlName="codigo" class="h-8 flex-1 rounded border border-slate-300 px-2 text-sm outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white" />
             </div>
             <div class="flex items-center">
-              <label class="w-36 shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400">Abreviaventa:</label>
+              <label class="w-28 shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400 lg:w-36">Abreviaventa:</label>
               <input type="text" formControlName="abreviaventa" class="h-8 flex-1 rounded border border-slate-300 px-2 text-sm outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white" />
             </div>
             <!-- Fila 2 -->
             <div class="col-span-1 flex items-center md:col-span-2">
-              <label class="w-36 shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400">Código Barra:</label>
+              <label class="w-28 shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400 lg:w-36">Código Barra:</label>
               <div class="relative flex-1">
                 <input type="text" formControlName="codigoBarra" class="h-8 w-full rounded border border-slate-300 px-2 pr-8 text-sm outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white" />
                 <button type="button" class="absolute right-0 top-0 flex h-8 w-8 items-center justify-center text-slate-400 hover:text-primary">
@@ -106,7 +106,7 @@
             </div>
             <!-- Fila 3 -->
             <div class="col-span-1 flex items-center md:col-span-2">
-              <label class="w-36 shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400">Nombre Técnico: <span class="text-error">*</span></label>
+              <label class="w-28 shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400 lg:w-36">Nombre Técnico: <span class="text-error">*</span></label>
               <input type="text" formControlName="nombreTecnico" class="h-8 flex-1 rounded border border-slate-300 px-2 text-sm outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white" />
             </div>
           </div>
@@ -119,7 +119,7 @@
           <div class="grid grid-cols-1 gap-x-6 gap-y-3 md:grid-cols-2">
             <!-- Fila 1 -->
             <div class="flex items-center">
-              <label class="w-36 shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400">Línea:</label>
+              <label class="w-28 shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400 lg:w-36">Línea:</label>
               <div class="relative flex-1">
                 <input type="text" formControlName="linea" readonly placeholder="SIN SELECCIONAR" class="h-8 w-full cursor-pointer rounded border border-slate-300 bg-slate-50 px-2 pr-8 text-sm outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white" />
                 <button type="button" class="absolute right-0 top-0 flex h-8 w-8 items-center justify-center text-slate-400 hover:text-primary">
@@ -128,7 +128,7 @@
               </div>
             </div>
             <div class="flex items-center">
-              <label class="w-36 shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400">Marca:</label>
+              <label class="w-28 shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400 lg:w-36">Marca:</label>
               <div class="relative flex-1">
                 <input type="text" formControlName="marca" readonly placeholder="SIN SELECCIONAR" class="h-8 w-full cursor-pointer rounded border border-slate-300 bg-slate-50 px-2 pr-8 text-sm outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white" />
                 <button type="button" class="absolute right-0 top-0 flex h-8 w-8 items-center justify-center text-slate-400 hover:text-primary">
@@ -138,7 +138,7 @@
             </div>
             <!-- Fila 2 -->
             <div class="flex items-center">
-              <label class="w-36 shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400">Familia:</label>
+              <label class="w-28 shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400 lg:w-36">Familia:</label>
               <div class="relative flex-1">
                 <input type="text" formControlName="familia" readonly placeholder="SIN SELECCIONAR" class="h-8 w-full cursor-pointer rounded border border-slate-300 bg-slate-50 px-2 pr-8 text-sm outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white" />
                 <button type="button" class="absolute right-0 top-0 flex h-8 w-8 items-center justify-center text-slate-400 hover:text-primary">
@@ -147,7 +147,7 @@
               </div>
             </div>
             <div class="flex items-center">
-              <label class="w-36 shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400">Categoría:</label>
+              <label class="w-28 shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400 lg:w-36">Categoría:</label>
               <div class="relative flex-1">
                 <input type="text" formControlName="categoria" readonly placeholder="SIN SELECCIONAR" class="h-8 w-full cursor-pointer rounded border border-slate-300 bg-slate-50 px-2 pr-8 text-sm outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white" />
                 <button type="button" class="absolute right-0 top-0 flex h-8 w-8 items-center justify-center text-slate-400 hover:text-primary">
@@ -157,7 +157,7 @@
             </div>
             <!-- Fila 3 -->
             <div class="flex items-center">
-              <label class="w-36 shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400">Clase:</label>
+              <label class="w-28 shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400 lg:w-36">Clase:</label>
               <div class="relative flex-1">
                 <input type="text" formControlName="clase" readonly placeholder="SIN SELECCIONAR" class="h-8 w-full cursor-pointer rounded border border-slate-300 bg-slate-50 px-2 pr-8 text-sm outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white" />
                 <button type="button" class="absolute right-0 top-0 flex h-8 w-8 items-center justify-center text-slate-400 hover:text-primary">
@@ -175,7 +175,7 @@
           <div class="grid grid-cols-1 gap-x-6 gap-y-3 md:grid-cols-2">
             <!-- Fila 1 -->
             <div class="flex items-center">
-              <label class="w-36 shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400">Proveedores: <span class="text-error">*</span></label>
+              <label class="w-28 shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400 lg:w-36">Proveedores: <span class="text-error">*</span></label>
               <div class="relative flex-1">
                 <input type="text" formControlName="proveedor" readonly placeholder="SIN SELECCIONAR" class="h-8 w-full cursor-pointer rounded border border-slate-300 bg-slate-50 px-2 pr-8 text-sm outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white" />
                 <button type="button" class="absolute right-0 top-0 flex h-8 w-8 items-center justify-center text-slate-400 hover:text-primary">
@@ -184,7 +184,7 @@
               </div>
             </div>
             <div class="flex items-center">
-              <label class="w-36 shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400">Procedencia:</label>
+              <label class="w-28 shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400 lg:w-36">Procedencia:</label>
               <select formControlName="procedencia" class="h-8 flex-1 rounded border border-slate-300 bg-white px-2 text-sm outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white">
                 <option value="">-Sin seleccionar-</option>
                 <option value="importado">Importado</option>
@@ -193,27 +193,27 @@
             </div>
             <!-- Fila 2 -->
             <div class="flex items-center">
-              <label class="w-36 shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400">Unidad: <span class="text-error">*</span></label>
+              <label class="w-28 shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400 lg:w-36">Unidad: <span class="text-error">*</span></label>
               <select formControlName="unidadMedida" class="h-8 flex-1 rounded border border-slate-300 bg-white px-2 text-sm outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white">
                 <option value="NIU">NIU</option>
               </select>
             </div>
             <div class="flex items-center">
-              <label class="w-36 shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400">Afecto Percepc.:</label>
+              <label class="w-28 shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400 lg:w-36">Afecto Percepc.:</label>
               <select formControlName="afectoPercepcion" class="h-8 flex-1 rounded border border-slate-300 bg-white px-2 text-sm outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white">
                 <option value="N">NO ESTA AFECTO</option>
               </select>
             </div>
             <!-- Fila 3 -->
             <div class="flex items-center">
-              <label class="w-36 shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400">Estado:</label>
+              <label class="w-28 shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400 lg:w-36">Estado:</label>
               <select formControlName="estadoProducto" class="h-8 flex-1 rounded border border-slate-300 bg-white px-2 text-sm outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white">
                 <option value="A">ACTIVO</option>
                 <option value="I">INACTIVO</option>
               </select>
             </div>
             <div class="flex items-center">
-              <label class="w-36 shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400">Fecha Registro: <span class="text-error">*</span></label>
+              <label class="w-28 shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400 lg:w-36">Fecha Registro: <span class="text-error">*</span></label>
               <div class="relative flex-1">
                 <input type="date" formControlName="fechaRegistro" class="h-8 w-full rounded border border-slate-300 bg-white px-2 text-sm outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white" />
               </div>
@@ -231,7 +231,7 @@
             <ng-icon name="lucideLayers" size="1rem" />
             Buscar Grupo Producto
           </button>
-          <button type="button" appEnterPrimary (click)="guardarProducto()" class="inline-flex h-9 items-center gap-2 rounded-md bg-red-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-red-700">
+          <button type="button" appEnterPrimary (click)="guardarProducto()" class="inline-flex h-9 items-center gap-2 rounded-md bg-primary px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-hover">
             <ng-icon name="lucideSave" size="1rem" />
             Guardar Producto
           </button>
