@@ -1,3 +1,24 @@
-/* You can add global styles to this file, and also import other style files */
-
 @import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-primary: #ed1b24;
+  --color-primary-hover: #d40000;
+  --color-primary-light: #fde8e8;
+
+  --color-surface: #f0f2f8;
+  --color-surface-card: #ffffff;
+
+  --color-success: #10b981;
+  --color-success-hover: #059669;
+  --color-success-light: #ecfdf5;
+
+  --color-error: #dc2626;
+
+  --font-sans: 'Inter', system-ui, sans-serif;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+}

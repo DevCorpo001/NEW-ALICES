@@ -1,0 +1,26 @@
+<a
+  href="#contenido-principal"
+  class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-lg focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-slate-900 focus:shadow-lg"
+>
+  Saltar al contenido
+</a>
+
+<app-sidebar
+  [isOpen]="mobileOpen()"
+  [collapsed]="collapsed()"
+  [width]="sidebarWidth()"
+  (menuClicked)="onSidebarMenuClicked()"
+  (expandRequested)="onExpandRequested()"
+  (closed)="closeMenu()"
+/>
+
+<div
+  class="flex min-h-screen flex-col bg-surface text-slate-900 transition-all duration-200 dark:bg-slate-950 dark:text-slate-100"
+  [style.paddingInlineStart]="mainPadding()"
+>
+  <app-topbar [menuExpanded]="mobileOpen()" (menuToggled)="toggleMenu()" />
+
+  <main id="contenido-principal" class="mx-auto w-full max-w-[1440px] flex-1 px-4 py-6 sm:px-6 lg:px-8">
+    <router-outlet />
+  </main>
+</div>
