@@ -4,6 +4,7 @@ using Alices.Application.Abstractions.Messaging;
 using Alices.Domain.Abstractions;
 using Alices.Domain.Usuarios;
 using Dapper;
+using Microsoft.Extensions.Logging;
 using System.Data;
 
 namespace Alices.Application.Autenticacion.IniciarSesion;
@@ -13,13 +14,16 @@ internal sealed class IniciarSesionCommandHandler
 {
     private readonly ISqlConnectionFactory _sqlConnectionFactory;
     private readonly IJwtTokenGenerator _jwtTokenGenerator;
+    private readonly ILogger<IniciarSesionCommandHandler> _logger;
 
     public IniciarSesionCommandHandler(
         ISqlConnectionFactory sqlConnectionFactory,
-        IJwtTokenGenerator jwtTokenGenerator)
+        IJwtTokenGenerator jwtTokenGenerator,
+        ILogger<IniciarSesionCommandHandler> logger)
     {
         _sqlConnectionFactory = sqlConnectionFactory;
         _jwtTokenGenerator = jwtTokenGenerator;
+        _logger = logger;
     }
 
     public async Task<Result<IniciarSesionResponse>> Handle(
@@ -41,6 +45,12 @@ internal sealed class IniciarSesionCommandHandler
 
         if (credenciales is null)
         {
+            _logger.LogWarning(
+                "Intento de login fallido para usuario {Usuario} desde {Ip} (tienda {IdTienda})",
+                request.Usuario,
+                request.Ip,
+                request.IdTienda);
+
             return Result.Failure<IniciarSesionResponse>(UsuarioErrors.CredencialesInvalidas);
         }
 
@@ -73,7 +83,6 @@ internal sealed class IniciarSesionCommandHandler
     {
         public string ID_USUARIO { get; init; } = string.Empty;
         public string USUARIO { get; init; } = string.Empty;
-        public string CLAVE { get; init; } = string.Empty;
         public string NOMBRECOMPLETO { get; init; } = string.Empty;
         public string IDROL { get; init; } = string.Empty;
         public string ROL { get; init; } = string.Empty;
