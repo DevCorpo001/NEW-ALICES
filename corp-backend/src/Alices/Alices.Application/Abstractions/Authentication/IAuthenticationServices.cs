@@ -1,11 +1,5 @@
 namespace Alices.Application.Abstractions.Authentication;
 
-public interface IPasswordHasher
-{
-    string Hash(string contrasenaPlana);
-    bool Verify(string contrasenaPlana, string hash);
-}
-
 public interface IJwtTokenGenerator
 {
     AuthenticationToken Generate(

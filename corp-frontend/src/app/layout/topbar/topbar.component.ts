@@ -8,6 +8,8 @@ import { ThemeService } from '../../core/services/theme.service';
 
 @Component({
   selector: 'app-topbar',
+  // El sticky va en el host: dentro, su caja no tiene holgura para desplazarse.
+  host: { class: 'sticky top-0 z-30 block' },
   imports: [NgIcon],
   providers: [provideIcons({ lucideBell, lucideLogOut, lucideMenu, lucideMoon, lucideSun })],
   templateUrl: './topbar.component.html',

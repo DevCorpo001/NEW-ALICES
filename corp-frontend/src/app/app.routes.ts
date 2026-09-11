@@ -1,21 +1,19 @@
-import { Type } from '@angular/core';
 import { Routes } from '@angular/router';
 import { authGuard } from './core/auth/auth.guard';
-import { submoduleEntryGuard } from './core/guards/submodule-entry.guard';
+import { submoduleEntryGuard } from './core/routing/submodule-entry.guard';
+import { SubmoduleViews } from './core/routing/submodule-views';
+import { almacenesViews } from './features/almacenes/feature-almacenes.routes';
+import { sistemaViews } from './features/sistema/feature-sistema.routes';
 import { authRoutes } from './features/auth/feature-auth.routes';
 import { navItems } from './layout/shell/nav-items';
 
 const comingSoon = () =>
   import('./shared/ui/coming-soon/coming-soon.component').then((m) => m.ComingSoonComponent);
 
-type ComponentLoader = () => Promise<Type<unknown>>;
-
-// Vista real por submódulo ('modulo/submodulo' -> componente lazy). El resto usa coming-soon.
-const submoduleViews: Record<string, ComponentLoader> = {
-  'almacenes/productos': () =>
-    import('./features/almacenes/ui/productos/productos.component').then(
-      (m) => m.ProductosComponent
-    ),
+// Registro de vistas reales; cada feature aporta las suyas.
+const submoduleViews: SubmoduleViews = {
+  ...almacenesViews,
+  ...sistemaViews,
 };
 
 export const moduleRoutes: Routes = navItems

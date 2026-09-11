@@ -2,7 +2,6 @@ using System.Text;
 using Alices.Application;
 using Alices.Infrastructure;
 using Alices.API.Middleware;
-using Alices.API.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
@@ -61,12 +60,11 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-    await app.ApplyMigrationsAsync();
-    await app.SeedDataAsync();
     app.MapOpenApi();
 }
 
 app.UseCors("Angular");
+app.UseStaticFiles();
 app.UseCustomExceptionHandler();
 app.UseAuthentication();
 app.UseAuthorization();

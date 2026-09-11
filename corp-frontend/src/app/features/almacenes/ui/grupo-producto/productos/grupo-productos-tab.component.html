@@ -1,0 +1,162 @@
+<div class="flex h-full min-h-0 flex-col gap-3 px-4 max-[576px]:px-2">
+  <div
+    appEnterNavigate
+    class="shrink-0 flex flex-wrap items-end gap-3.5 rounded-sm border border-slate-200 bg-white px-5 py-4 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+  >
+    <div class="min-w-[200px] flex-1">
+      <label for="filtro-producto-grupo" class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+        Producto
+      </label>
+      <input
+        id="filtro-producto-grupo"
+        type="text"
+        [value]="store.producto()"
+        (input)="cambiarProducto($event)"
+        placeholder="CÓDIGO O NOMBRE"
+        class="h-[42px] w-full rounded-sm border-0 bg-white px-3.5 text-sm text-slate-900 shadow-sm outline outline-1 outline-slate-300 transition placeholder:text-slate-400 focus:outline-2 focus:outline-primary dark:bg-slate-800 dark:text-white dark:outline-slate-700"
+      />
+    </div>
+
+    <div class="min-w-[200px] flex-1">
+      <label for="filtro-proveedor-grupo" class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+        Proveedor
+      </label>
+      <input
+        id="filtro-proveedor-grupo"
+        type="text"
+        [value]="store.proveedor()"
+        (input)="cambiarProveedor($event)"
+        placeholder="RAZÓN SOCIAL"
+        class="h-[42px] w-full rounded-sm border-0 bg-white px-3.5 text-sm text-slate-900 shadow-sm outline outline-1 outline-slate-300 transition placeholder:text-slate-400 focus:outline-2 focus:outline-primary dark:bg-slate-800 dark:text-white dark:outline-slate-700"
+      />
+    </div>
+
+    <div class="min-w-[180px] flex-1">
+      <label for="filtro-canal-producto" class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+        Canal
+      </label>
+      <select
+        id="filtro-canal-producto"
+        [value]="store.idCanalProducto() ?? ''"
+        (change)="cambiarCanal($event)"
+        class="h-[42px] w-full cursor-pointer rounded-sm border-0 bg-white px-3.5 text-sm text-slate-900 shadow-sm outline outline-1 outline-slate-300 transition focus:outline-2 focus:outline-primary dark:bg-slate-800 dark:text-white dark:outline-slate-700"
+      >
+        <option value="">Todos</option>
+        @for (canal of store.canales(); track canal.idCanal) {
+          <option [value]="canal.idCanal">{{ canal.nombre }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="flex shrink-0 items-end gap-2.5">
+      <button
+        type="button"
+        (click)="store.limpiarProductos()"
+        [disabled]="!store.hayFiltrosProducto()"
+        class="inline-flex h-[42px] items-center gap-2 whitespace-nowrap rounded-sm border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+      >
+        <ng-icon name="lucideEraser" size="1rem" />
+        Limpiar
+      </button>
+      <button
+        type="button"
+        (click)="asignarAbierto.set(true)"
+        [disabled]="store.seleccionados().length === 0"
+        class="inline-flex h-[42px] items-center gap-2 whitespace-nowrap rounded-sm bg-primary px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        <ng-icon name="lucideFolderPlus" size="1rem" />
+        Agregar a grupo
+        @if (store.seleccionados().length > 0) {
+          <span class="rounded-sm bg-white/25 px-1.5 py-0.5 text-[11px] tabular-nums">
+            {{ store.seleccionados().length }}
+          </span>
+        }
+      </button>
+    </div>
+  </div>
+
+  <div class="flex flex-1 min-h-0 flex-col overflow-hidden rounded-sm border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <div class="flex-1 min-h-0 overflow-auto scroll-marca">
+      <table class="w-full min-w-[880px] text-left text-xs">
+        <thead class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-800">
+          <tr class="border-b border-slate-200 bg-slate-50 text-slate-500 dark:border-slate-800 dark:bg-slate-800">
+            <th class="w-12 px-4 py-3">
+              <input
+                type="checkbox"
+                [checked]="store.todosSeleccionados()"
+                [disabled]="store.productosFiltrados().length === 0"
+                (change)="store.alternarTodos()"
+                aria-label="Marcar todos los productos de la lista"
+                class="h-4 w-4 cursor-pointer accent-primary"
+              />
+            </th>
+            <th class="w-32 whitespace-nowrap px-4 py-3 font-semibold">CÓDIGO</th>
+            <th class="px-4 py-3 font-semibold">PRODUCTO</th>
+            <th class="px-4 py-3 font-semibold">PROVEEDOR</th>
+            <th class="px-4 py-3 font-semibold">GRUPO</th>
+            <th class="w-36 whitespace-nowrap px-4 py-3 text-right font-semibold">PRECIO UNITARIO</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (store.cargando()) {
+            <tr><td colspan="6" class="py-10 text-center text-slate-400">Cargando productos...</td></tr>
+          } @else if (store.error()) {
+            <tr><td colspan="6" class="py-10 text-center text-error">No se pudieron cargar los productos.</td></tr>
+          } @else if (store.productosFiltrados().length === 0) {
+            <tr>
+              <td colspan="6" class="py-10 text-center text-slate-400">
+                @if (store.hayFiltrosProducto()) { Ningún producto coincide con los filtros. } @else { Sin productos registrados. }
+              </td>
+            </tr>
+          } @else {
+            @for (fila of store.productosFiltrados(); track fila.idProducto) {
+              <tr
+                class="border-b border-slate-100 transition last:border-0 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800/50"
+                [class.bg-primary-light]="store.estaSeleccionado(fila.idProducto)"
+              >
+                <td class="px-4 py-3">
+                  <input
+                    type="checkbox"
+                    [checked]="store.estaSeleccionado(fila.idProducto)"
+                    (change)="store.alternarSeleccion(fila.idProducto)"
+                    [attr.aria-label]="'Marcar ' + fila.producto"
+                    class="h-4 w-4 cursor-pointer accent-primary"
+                  />
+                </td>
+                <td class="whitespace-nowrap px-4 py-3 font-bold text-slate-800 dark:text-slate-200">{{ fila.codigo }}</td>
+                <td class="px-4 py-3 text-slate-700 dark:text-slate-300">{{ fila.producto }}</td>
+                <td class="px-4 py-3 text-slate-500 dark:text-slate-400">{{ fila.proveedor }}</td>
+                <td class="px-4 py-3">
+                  @if (fila.grupo) {
+                    <span class="text-slate-600 dark:text-slate-300">{{ fila.grupo }}</span>
+                  } @else {
+                    <span class="text-slate-300 dark:text-slate-600">Sin grupo</span>
+                  }
+                </td>
+                <td class="whitespace-nowrap px-4 py-3 text-right tabular-nums text-slate-700 dark:text-slate-200">
+                  S/ {{ fila.precioUnitario | number: '1.2-2' }}
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="shrink-0 border-t border-slate-200 px-5 py-2.5 text-xs text-slate-500 dark:border-slate-800">
+      Mostrando <span class="font-semibold tabular-nums">{{ store.productosFiltrados().length }}</span>
+      de <span class="font-semibold tabular-nums">{{ store.totalProductos() }}</span> productos
+      @if (store.seleccionados().length > 0) {
+        · <span class="font-semibold tabular-nums text-primary">{{ store.seleccionados().length }}</span> marcados
+      }
+    </div>
+  </div>
+
+  <app-asignar-grupo-modal
+    [abierto]="asignarAbierto()"
+    [grupos]="store.listaGrupos()"
+    [cantidad]="store.seleccionados().length"
+    (cerrar)="asignarAbierto.set(false)"
+    (asignar)="asignar($event)"
+  />
+</div>

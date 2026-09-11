@@ -1,336 +1,331 @@
-<section class="flex flex-col gap-4 bg-slate-50 p-4 dark:bg-slate-950">
-  
+<section class="h-full flex flex-col gap-2.5 bg-slate-50 dark:bg-slate-950 min-h-0 overflow-hidden">
+
   <!-- ==========================================
        TOOLBAR SUPERIOR (Buscador)
        ========================================== -->
-  <section class="flex flex-wrap items-end gap-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-    <!-- Búsqueda -->
-    <div class="flex-1 min-w-[300px]">
-      <label for="buscar-producto" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-        Buscar producto existente
-      </label>
-      <div class="relative">
-        <input
-          id="buscar-producto"
-          type="text"
-          [formControl]="buscarProducto"
+  <section class="shrink-0 flex flex-col gap-2 rounded-sm border border-slate-200 bg-white px-4 py-2.5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <div class="flex flex-wrap items-end gap-3">
+      <!-- Búsqueda -->
+      <div class="min-w-[160px] flex-1">
+        <app-autocomplete
+          idControl="buscar-producto"
+          etiqueta="Buscar producto existente"
           placeholder="CÓDIGO O NOMBRE DEL PRODUCTO"
-          class="w-full rounded-md border border-slate-300 bg-white px-3.5 py-2 text-sm uppercase text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-primary focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+          mensajeError="Error al buscar productos. Inténtalo de nuevo."
+          [formControl]="textoBuscado"
+          [opciones]="opciones()"
+          [buscando]="busqueda.buscando()"
+          [error]="busqueda.error()"
+          (buscar)="onBuscar($event)"
+          (seleccionar)="seleccionarProducto($event)"
         />
+      </div>
+
+      <!-- Estado -->
+      <div class="min-w-[140px] max-w-[180px] flex-1">
+        <label for="estado" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+          Estado
+        </label>
+        <select
+          id="estado"
+          [value]="busqueda.estado()"
+          (change)="cambiarEstado($event)"
+          class="h-[38px] w-full cursor-pointer appearance-none rounded-sm border-0 bg-white bg-[right_14px_center] bg-no-repeat px-3 pr-8 text-sm text-slate-900 shadow-sm outline outline-1 outline-slate-300 transition focus:outline-2 focus:outline-primary dark:bg-slate-800 dark:text-white dark:outline-slate-700"
+        >
+          <option value="todos">Todos</option>
+          <option value="activo">Activo</option>
+          <option value="inactivo">Inactivo</option>
+        </select>
+      </div>
+
+      <!-- Botones Toolbar -->
+      <div class="flex shrink-0 items-end gap-2">
+        <button
+          type="button"
+          (click)="limpiar()"
+          class="inline-flex h-[38px] items-center gap-1.5 whitespace-nowrap rounded-sm border border-slate-300 bg-white px-3.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+        >
+          <ng-icon name="lucideEraser" size="0.95rem" />
+          Limpiar
+        </button>
+        <button
+          type="button"
+          (click)="buscar()"
+          class="inline-flex h-[38px] items-center gap-1.5 whitespace-nowrap rounded-sm bg-primary px-3.5 text-xs font-semibold text-white shadow-sm transition hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+        >
+          <ng-icon name="lucideSearch" size="0.95rem" />
+          Buscar
+        </button>
       </div>
     </div>
 
-    <!-- Estado -->
-    <div class="w-48">
-      <label for="estado" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-        Estado
-      </label>
-      <select
-        id="estado"
-        [formControl]="estado"
-        class="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none transition focus:border-primary focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-      >
-        <option value="todos">Todos</option>
-        <option value="activo">Activo</option>
-        <option value="inactivo">Inactivo</option>
-      </select>
-    </div>
-
-    <!-- Botones Toolbar -->
-    <div class="flex shrink-0 gap-2">
-      <button
-        type="button"
-        (click)="limpiar()"
-        class="inline-flex h-[38px] items-center gap-2 rounded-md border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
-      >
-        <ng-icon name="lucideEraser" size="1rem" />
-        Limpiar
-      </button>
-      <button
-        type="button"
-        (click)="buscar()"
-        class="inline-flex h-[38px] items-center gap-2 rounded-md bg-primary px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-      >
-        <ng-icon name="lucideSearch" size="1rem" />
-        Buscar
-      </button>
-    </div>
+    @if (cargandoFicha()) {
+      <p role="status" class="text-xs text-slate-500">Cargando datos del producto...</p>
+    } @else if (errorFicha(); as mensaje) {
+      <p role="alert" class="text-xs font-semibold text-error">{{ mensaje }}</p>
+    }
   </section>
 
   <!-- ==========================================
-       MAIN GRID (2 Columnas)
+       MAIN GRID (2 columnas ≥993px, 1 columna debajo)
        ========================================== -->
-  <div class="grid grid-cols-1 items-start gap-4 md:grid-cols-[65%_1fr]">
-    
+  <div class="grid min-h-0 flex-1 grid-cols-1 items-start gap-3.5 overflow-hidden min-[993px]:grid-cols-[5.2fr_3.8fr]">
+
     <!-- COLUMNA IZQUIERDA (Formulario) -->
-    <div class="flex flex-col gap-4">
-      
-      <!-- Bloque informativo (Solo Nuevo) -->
-      @if (modo() === 'nuevo') {
-        <div class="flex items-start gap-3 rounded-md border border-blue-200 bg-blue-50 p-3 dark:border-blue-900/50 dark:bg-blue-900/20">
-          <ng-icon name="lucideLightbulb" size="1.25rem" class="mt-0.5 text-blue-600 dark:text-blue-400" />
-          <div>
-            <h2 class="text-sm font-bold text-blue-900 dark:text-blue-300">Producto nuevo</h2>
-            <p class="mt-0.5 text-xs text-blue-800 dark:text-blue-400">
-              Para crear un producto completa los campos obligatorios: <strong>Código de Producto</strong>, <strong>Nombre Técnico</strong> y <strong>Proveedor</strong>.
-            </p>
-          </div>
-        </div>
-      }
+    <div class="flex h-full flex-col min-h-0 overflow-hidden">
 
-      <form appEnterNavigate [appEnterNavigateFocus]="false" [formGroup]="formulario" class="flex flex-col gap-4">
-        
-        <!-- CARD: INFORMACIÓN GENERAL -->
-        <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <h3 class="mb-4 text-sm font-bold uppercase tracking-wide text-slate-800 dark:text-white">Información General</h3>
-          
-          <div class="grid grid-cols-1 gap-x-6 gap-y-3 md:grid-cols-2">
-            <!-- Fila 1 -->
-            <div class="flex items-center">
-              <label class="w-28 shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400 lg:w-36">Código Producto: <span class="text-error">*</span></label>
-              <input type="text" formControlName="codigo" class="h-8 flex-1 rounded border border-slate-300 px-2 text-sm outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white" />
-            </div>
-            <div class="flex items-center">
-              <label class="w-28 shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400 lg:w-36">Abreviaventa:</label>
-              <input type="text" formControlName="abreviaventa" class="h-8 flex-1 rounded border border-slate-300 px-2 text-sm outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white" />
-            </div>
-            <!-- Fila 2 -->
-            <div class="col-span-1 flex items-center md:col-span-2">
-              <label class="w-28 shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400 lg:w-36">Código Barra:</label>
-              <div class="relative flex-1">
-                <input type="text" formControlName="codigoBarra" class="h-8 w-full rounded border border-slate-300 px-2 pr-8 text-sm outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white" />
-                <button type="button" class="absolute right-0 top-0 flex h-8 w-8 items-center justify-center text-slate-400 hover:text-primary">
-                  <ng-icon name="lucideEye" size="1rem" />
-                </button>
-              </div>
-            </div>
-            <!-- Fila 3 -->
-            <div class="col-span-1 flex items-center md:col-span-2">
-              <label class="w-28 shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400 lg:w-36">Nombre Técnico: <span class="text-error">*</span></label>
-              <input type="text" formControlName="nombreTecnico" class="h-8 flex-1 rounded border border-slate-300 px-2 text-sm outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white" />
-            </div>
-          </div>
-        </div>
+      <form appEnterNavigate [appEnterNavigateFocus]="false" [formGroup]="formulario" class="flex h-full flex-col min-h-0 justify-between">
 
-        <!-- CARD: CLASIFICACIÓN DEL PRODUCTO -->
-        <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <h3 class="mb-4 text-sm font-bold uppercase tracking-wide text-slate-800 dark:text-white">Clasificación del Producto</h3>
-          
-          <div class="grid grid-cols-1 gap-x-6 gap-y-3 md:grid-cols-2">
-            <!-- Fila 1 -->
-            <div class="flex items-center">
-              <label class="w-28 shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400 lg:w-36">Línea:</label>
-              <div class="relative flex-1">
-                <input type="text" formControlName="linea" readonly placeholder="SIN SELECCIONAR" class="h-8 w-full cursor-pointer rounded border border-slate-300 bg-slate-50 px-2 pr-8 text-sm outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white" />
-                <button type="button" class="absolute right-0 top-0 flex h-8 w-8 items-center justify-center text-slate-400 hover:text-primary">
-                  <ng-icon name="lucideSearch" size="1rem" />
-                </button>
+        <!-- CONTENEDOR SCROLLEABLE INTERNO -->
+        <div class="flex-1 min-h-0 overflow-y-auto scroll-marca pr-1.5 flex flex-col gap-3">
+
+          <!-- Bloque informativo (Solo Nuevo) -->
+          @if (modo() === 'nuevo') {
+            <div class="flex items-start gap-2.5 rounded-sm border border-blue-200 bg-blue-50 p-2.5 dark:border-blue-900/50 dark:bg-blue-900/20">
+              <ng-icon name="lucideLightbulb" size="1.1rem" class="mt-0.5 shrink-0 text-blue-600 dark:text-blue-400" />
+              <div>
+                <h2 class="text-xs font-bold text-blue-900 dark:text-blue-300">Producto nuevo</h2>
+                <p class="mt-0.5 text-[11px] text-blue-800 dark:text-blue-400">
+                  Completa los obligatorios: <strong>Código de Producto</strong>, <strong>Nombre Técnico</strong> y <strong>Proveedor</strong>.
+                </p>
               </div>
             </div>
-            <div class="flex items-center">
-              <label class="w-28 shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400 lg:w-36">Marca:</label>
-              <div class="relative flex-1">
-                <input type="text" formControlName="marca" readonly placeholder="SIN SELECCIONAR" class="h-8 w-full cursor-pointer rounded border border-slate-300 bg-slate-50 px-2 pr-8 text-sm outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white" />
-                <button type="button" class="absolute right-0 top-0 flex h-8 w-8 items-center justify-center text-slate-400 hover:text-primary">
-                  <ng-icon name="lucideSearch" size="1rem" />
-                </button>
+          }
+
+          <!-- CARD: INFORMACIÓN GENERAL -->
+          <div class="rounded-sm border border-slate-200 bg-white p-3.5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <h3 class="mb-2.5 text-xs font-bold uppercase tracking-wide text-slate-800 dark:text-white">Información General</h3>
+            <div class="grid grid-cols-1 gap-x-3 gap-y-2 min-[993px]:grid-cols-2">
+              <!-- Fila 1 -->
+              <div class="flex items-center gap-2 max-[576px]:flex-wrap">
+                <label class="min-w-[80px] shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400 max-[576px]:min-w-full">Código Producto: <span class="text-error">*</span></label>
+                <input type="text" formControlName="codigo" class="h-8.5 min-w-0 flex-1 rounded border border-slate-300 px-2.5 text-xs outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white" />
               </div>
-            </div>
-            <!-- Fila 2 -->
-            <div class="flex items-center">
-              <label class="w-28 shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400 lg:w-36">Familia:</label>
-              <div class="relative flex-1">
-                <input type="text" formControlName="familia" readonly placeholder="SIN SELECCIONAR" class="h-8 w-full cursor-pointer rounded border border-slate-300 bg-slate-50 px-2 pr-8 text-sm outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white" />
-                <button type="button" class="absolute right-0 top-0 flex h-8 w-8 items-center justify-center text-slate-400 hover:text-primary">
-                  <ng-icon name="lucideSearch" size="1rem" />
-                </button>
+              <div class="flex items-center gap-2 max-[576px]:flex-wrap">
+                <label class="min-w-[80px] shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400 max-[576px]:min-w-full">Abreviaventa:</label>
+                <input type="text" formControlName="abreviaventa" class="h-8.5 min-w-0 flex-1 rounded border border-slate-300 px-2.5 text-xs outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white" />
               </div>
-            </div>
-            <div class="flex items-center">
-              <label class="w-28 shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400 lg:w-36">Categoría:</label>
-              <div class="relative flex-1">
-                <input type="text" formControlName="categoria" readonly placeholder="SIN SELECCIONAR" class="h-8 w-full cursor-pointer rounded border border-slate-300 bg-slate-50 px-2 pr-8 text-sm outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white" />
-                <button type="button" class="absolute right-0 top-0 flex h-8 w-8 items-center justify-center text-slate-400 hover:text-primary">
-                  <ng-icon name="lucideSearch" size="1rem" />
-                </button>
+              <!-- Fila 2 -->
+              <div class="col-span-1 flex items-center gap-2 max-[576px]:flex-wrap min-[993px]:col-span-2">
+                <label class="min-w-[80px] shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400 max-[576px]:min-w-full">Código Barra:</label>
+                <div class="relative min-w-0 flex-1">
+                  <!-- Solo lectura: los códigos se administran desde el modal. -->
+                  <input type="text" formControlName="codigoBarra" readonly placeholder="SIN CÓDIGOS" class="h-8.5 w-full cursor-pointer rounded border border-slate-300 bg-slate-50 px-2.5 pr-8 text-xs outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white" />
+                  <button type="button" (click)="codigoBarraAbierto.set(true)" aria-label="Ver códigos de barra" class="absolute right-0 top-0 flex h-8.5 w-8 items-center justify-center text-slate-400 transition hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+                    <ng-icon name="lucideEye" size="0.95rem" />
+                  </button>
+                </div>
               </div>
-            </div>
-            <!-- Fila 3 -->
-            <div class="flex items-center">
-              <label class="w-28 shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400 lg:w-36">Clase:</label>
-              <div class="relative flex-1">
-                <input type="text" formControlName="clase" readonly placeholder="SIN SELECCIONAR" class="h-8 w-full cursor-pointer rounded border border-slate-300 bg-slate-50 px-2 pr-8 text-sm outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white" />
-                <button type="button" class="absolute right-0 top-0 flex h-8 w-8 items-center justify-center text-slate-400 hover:text-primary">
-                  <ng-icon name="lucideSearch" size="1rem" />
-                </button>
+              <!-- Fila 3 -->
+              <div class="col-span-1 flex items-center gap-2 max-[576px]:flex-wrap min-[993px]:col-span-2">
+                <label class="min-w-[80px] shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400 max-[576px]:min-w-full">Nombre Técnico: <span class="text-error">*</span></label>
+                <input type="text" formControlName="nombreTecnico" class="h-8.5 min-w-0 flex-1 rounded border border-slate-300 px-2.5 text-xs outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white" />
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- CARD: DATOS ADICIONALES -->
-        <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <h3 class="mb-4 text-sm font-bold uppercase tracking-wide text-slate-800 dark:text-white">Datos Adicionales</h3>
-          
-          <div class="grid grid-cols-1 gap-x-6 gap-y-3 md:grid-cols-2">
-            <!-- Fila 1 -->
-            <div class="flex items-center">
-              <label class="w-28 shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400 lg:w-36">Proveedores: <span class="text-error">*</span></label>
-              <div class="relative flex-1">
-                <input type="text" formControlName="proveedor" readonly placeholder="SIN SELECCIONAR" class="h-8 w-full cursor-pointer rounded border border-slate-300 bg-slate-50 px-2 pr-8 text-sm outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white" />
-                <button type="button" class="absolute right-0 top-0 flex h-8 w-8 items-center justify-center text-slate-400 hover:text-primary">
-                  <ng-icon name="lucideSearch" size="1rem" />
-                </button>
+          <!-- CARD: CLASIFICACIÓN DEL PRODUCTO -->
+          <div class="rounded-sm border border-slate-200 bg-white p-3.5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <h3 class="mb-2.5 text-xs font-bold uppercase tracking-wide text-slate-800 dark:text-white">Clasificación del Producto</h3>
+            <div class="grid grid-cols-1 gap-x-3 gap-y-2 min-[993px]:grid-cols-2">
+              @for (campo of camposClasificacion; track campo.id) {
+                <div class="flex items-center gap-2 max-[576px]:flex-wrap">
+                  <label class="min-w-[80px] shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400 max-[576px]:min-w-full">{{ campo.etiqueta }}</label>
+                  <div class="relative min-w-0 flex-1">
+                    <input
+                      type="text"
+                      [formControlName]="campo.id"
+                      readonly
+                      placeholder="SIN SELECCIONAR"
+                      class="h-8.5 w-full cursor-pointer rounded border border-slate-300 bg-slate-50 px-2.5 pr-14 text-xs outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                    />
+                    <div class="absolute right-0 top-0 flex h-8.5 items-center">
+                      @if (formulario.controls[campo.id].value) {
+                        <button
+                          type="button"
+                          (click)="limpiarCatalogo(campo.id)"
+                          [attr.aria-label]="'Limpiar ' + campo.etiqueta.replace(':', '')"
+                          title="Limpiar selección"
+                          class="flex h-8.5 w-6 items-center justify-center text-slate-400 transition hover:text-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                        >
+                          <ng-icon name="lucideX" size="0.85rem" />
+                        </button>
+                      }
+                      <button
+                        type="button"
+                        (click)="abrirCatalogo(campo.id)"
+                        [attr.aria-label]="'Buscar ' + campo.etiqueta.replace(':', '')"
+                        class="flex h-8.5 w-7 items-center justify-center text-slate-400 transition hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                      >
+                        <ng-icon name="lucideSearch" size="0.95rem" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- CARD: DATOS ADICIONALES -->
+          <div class="rounded-sm border border-slate-200 bg-white p-3.5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <div class="mb-2.5">
+              <h3 class="text-xs font-bold uppercase tracking-wide text-slate-800 dark:text-white">Datos Adicionales</h3>
+            </div>
+            <div class="grid grid-cols-1 gap-x-3 gap-y-2 min-[993px]:grid-cols-2">
+              <div class="flex items-center gap-2 max-[576px]:flex-wrap">
+                <label class="min-w-[80px] shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400 max-[576px]:min-w-full">Proveedores: <span class="text-error">*</span></label>
+                <div class="relative min-w-0 flex-1">
+                  <input
+                    type="text"
+                    formControlName="proveedor"
+                    readonly
+                    placeholder="SIN SELECCIONAR"
+                    class="h-8.5 w-full cursor-pointer rounded border border-slate-300 bg-slate-50 px-2.5 pr-14 text-xs outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                  />
+                  <div class="absolute right-0 top-0 flex h-8.5 items-center">
+                    @if (formulario.controls.proveedor.value) {
+                      <button
+                        type="button"
+                        (click)="limpiarCatalogo('proveedor')"
+                        aria-label="Limpiar Proveedor"
+                        title="Limpiar selección"
+                        class="flex h-8.5 w-6 items-center justify-center text-slate-400 transition hover:text-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                      >
+                        <ng-icon name="lucideX" size="0.85rem" />
+                      </button>
+                    }
+                    <button
+                      type="button"
+                      (click)="abrirProveedoresAsociados()"
+                      aria-label="Buscar Proveedor"
+                      class="flex h-8.5 w-7 items-center justify-center text-slate-400 transition hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                    >
+                      <ng-icon name="lucideSearch" size="0.95rem" />
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div class="flex items-center">
-              <label class="w-28 shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400 lg:w-36">Procedencia:</label>
-              <select formControlName="procedencia" class="h-8 flex-1 rounded border border-slate-300 bg-white px-2 text-sm outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white">
-                <option value="">-Sin seleccionar-</option>
-                <option value="importado">Importado</option>
-                <option value="local">Local Distribuido</option>
-              </select>
-            </div>
-            <!-- Fila 2 -->
-            <div class="flex items-center">
-              <label class="w-28 shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400 lg:w-36">Unidad: <span class="text-error">*</span></label>
-              <select formControlName="unidadMedida" class="h-8 flex-1 rounded border border-slate-300 bg-white px-2 text-sm outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white">
-                <option value="NIU">NIU</option>
-              </select>
-            </div>
-            <div class="flex items-center">
-              <label class="w-28 shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400 lg:w-36">Afecto Percepc.:</label>
-              <select formControlName="afectoPercepcion" class="h-8 flex-1 rounded border border-slate-300 bg-white px-2 text-sm outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white">
-                <option value="N">NO ESTA AFECTO</option>
-              </select>
-            </div>
-            <!-- Fila 3 -->
-            <div class="flex items-center">
-              <label class="w-28 shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400 lg:w-36">Estado:</label>
-              <select formControlName="estadoProducto" class="h-8 flex-1 rounded border border-slate-300 bg-white px-2 text-sm outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white">
-                <option value="A">ACTIVO</option>
-                <option value="I">INACTIVO</option>
-              </select>
-            </div>
-            <div class="flex items-center">
-              <label class="w-28 shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400 lg:w-36">Fecha Registro: <span class="text-error">*</span></label>
-              <div class="relative flex-1">
-                <input type="date" formControlName="fechaRegistro" class="h-8 w-full rounded border border-slate-300 bg-white px-2 text-sm outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white" />
+              <div class="flex items-center gap-2 max-[576px]:flex-wrap">
+                <label class="min-w-[80px] shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400 max-[576px]:min-w-full">Procedencia:</label>
+                <select formControlName="procedencia" class="h-8.5 min-w-0 flex-1 rounded border border-slate-300 bg-white px-2.5 text-xs outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white">
+                  <!-- Valores tal como los guarda la base (ORIGEN). -->
+                  <option value="">-Sin seleccionar-</option>
+                  <option value="I">Importado</option>
+                  <option value="L">Local Distribuido</option>
+                </select>
+              </div>
+              <div class="flex items-center gap-2 max-[576px]:flex-wrap">
+                <label class="min-w-[80px] shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400 max-[576px]:min-w-full">Unidad: <span class="text-error">*</span></label>
+                <select formControlName="unidadMedida" class="h-8.5 min-w-0 flex-1 rounded border border-slate-300 bg-white px-2.5 text-xs outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white">
+                  <option value="NIU">NIU</option>
+                </select>
+              </div>
+              <div class="flex items-center gap-2 max-[576px]:flex-wrap">
+                <label class="min-w-[80px] shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400 max-[576px]:min-w-full">Afecto Percepc.:</label>
+                <select formControlName="afectoPercepcion" class="h-8.5 min-w-0 flex-1 rounded border border-slate-300 bg-white px-2.5 text-xs outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white">
+                  <option value="N">NO ESTA AFECTO</option>
+                  <option value="S">SI ESTA AFECTO</option>
+                </select>
+              </div>
+              <div class="flex items-center gap-2 max-[576px]:flex-wrap">
+                <label class="min-w-[80px] shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400 max-[576px]:min-w-full">Estado:</label>
+                <select formControlName="estadoProducto" class="h-8.5 min-w-0 flex-1 rounded border border-slate-300 bg-white px-2.5 text-xs outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white">
+                  <option value="A">ACTIVO</option>
+                  <option value="I">INACTIVO</option>
+                </select>
+              </div>
+              <div class="flex items-center gap-2 max-[576px]:flex-wrap">
+                <label class="min-w-[80px] shrink-0 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400 max-[576px]:min-w-full">Fecha Registro: <span class="text-error">*</span></label>
+                <div class="relative min-w-0 flex-1">
+                  <input type="date" formControlName="fechaRegistro" class="h-8.5 w-full rounded border border-slate-300 bg-white px-2.5 text-xs outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white" />
+                </div>
               </div>
             </div>
           </div>
+
         </div>
 
-        <!-- FOOTER ACCIONES -->
-        <div class="mt-2 flex flex-wrap items-center justify-end gap-3">
-          <button type="button" (click)="nuevo()" class="inline-flex h-9 items-center gap-2 rounded-md border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700">
-            <ng-icon name="lucidePlus" size="1rem" />
+        <!-- FOOTER ACCIONES: queda anclado abajo, siempre visible sin scroll -->
+        <div class="shrink-0 mt-2 flex flex-wrap items-center justify-end gap-2 border-t border-slate-200 pt-2.5 dark:border-slate-800">
+          <button type="button" (click)="nuevo()" class="inline-flex h-9 items-center justify-center gap-1.5 whitespace-nowrap rounded-sm border border-slate-300 bg-white px-3.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700">
+            <ng-icon name="lucidePlus" size="0.95rem" />
             Nuevo
           </button>
-          <button type="button" (click)="buscarGrupoProducto()" class="inline-flex h-9 items-center gap-2 rounded-md bg-primary px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-hover">
-            <ng-icon name="lucideLayers" size="1rem" />
+          <button type="button" (click)="buscarGrupoProducto()" class="inline-flex h-9 items-center justify-center gap-1.5 whitespace-nowrap rounded-sm bg-primary px-3.5 text-xs font-semibold text-white shadow-sm transition hover:bg-primary-hover">
+            <ng-icon name="lucideLayers" size="0.95rem" />
             Buscar Grupo Producto
           </button>
-          <button type="button" appEnterPrimary (click)="guardarProducto()" class="inline-flex h-9 items-center gap-2 rounded-md bg-primary px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-hover">
-            <ng-icon name="lucideSave" size="1rem" />
-            Guardar Producto
+          <button
+            type="button"
+            appEnterPrimary
+            (click)="guardarProducto()"
+            [disabled]="guardando()"
+            class="inline-flex h-9 items-center justify-center gap-1.5 whitespace-nowrap rounded-sm bg-primary px-4 text-xs font-semibold text-white shadow-sm transition hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <ng-icon name="lucideSave" size="0.95rem" />
+            @if (guardando()) {
+              Guardando...
+            } @else if (modoGuardado() === 'actualizar') {
+              Actualizar Producto
+            } @else {
+              Guardar Producto
+            }
           </button>
         </div>
+
       </form>
     </div>
 
     <!-- COLUMNA DERECHA (Imagen y Precios) -->
-    <div class="relative flex flex-col gap-4">
-      
+    <div class="relative flex h-full flex-col min-h-0 overflow-y-auto scroll-marca pr-1.5 gap-3">
+
       <!-- Overlay de Bloqueo -->
-      @if (!productoBuscado()) {
-        <div class="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 rounded-lg bg-white/80 p-6 text-center backdrop-blur-[1px] dark:bg-slate-950/80">
+      @if (!productoSeleccionado()) {
+        <div class="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 rounded-sm bg-white/85 p-6 text-center backdrop-blur-[2px] dark:bg-slate-950/85">
           <ng-icon name="lucideLock" size="2rem" class="text-slate-400" />
-          <p class="text-xs font-semibold text-slate-500 dark:text-slate-400">
-            Guarda o busca un producto para habilitar<br/>la carga de imagen y precios.
+          <p class="max-w-[220px] text-xs text-slate-500 dark:text-slate-400">
+            Guarda o busca un producto para habilitar la carga de imagen y precios.
           </p>
         </div>
       }
 
-      <div [class.pointer-events-none]="!productoBuscado()" [class.opacity-50]="!productoBuscado()" class="flex flex-col gap-4">
-        
-        <!-- CARD: IMAGEN -->
-        <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <h3 class="mb-4 text-sm font-bold uppercase tracking-wide text-slate-800 dark:text-white">Imagen</h3>
-          
-          <div class="flex flex-col items-center gap-4">
-            <!-- Preview Imagen -->
-            <div class="flex h-40 w-full items-center justify-center overflow-hidden rounded-md border border-dashed border-slate-300 bg-slate-50 dark:border-slate-700 dark:bg-slate-800">
-              @if (imagen(); as img) {
-                <img [src]="img" alt="Producto" class="h-full w-full object-contain" />
-              } @else {
-                <span class="text-xs font-medium text-slate-400">Sin imagen</span>
-              }
-            </div>
-
-            <!-- Botones Imagen -->
-            <div class="flex w-full gap-2">
-              <label class="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-md bg-red-100 px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400">
-                <ng-icon name="lucideUpload" size="1rem" /> Cargar
-                <input type="file" accept="image/*" class="hidden" (change)="onCargarImagen($event)" />
-              </label>
-              <button type="button" (click)="guardarImagen()" class="flex flex-1 items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
-                <ng-icon name="lucideCheck" size="1rem" /> Guardar
-              </button>
-              <button type="button" (click)="eliminarImagen()" class="flex flex-1 items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 hover:text-red-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
-                <ng-icon name="lucideX" size="1rem" /> Eliminar
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- CARD: LISTA DE PRECIOS -->
-        <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <div class="mb-4 flex items-center justify-between">
-            <h3 class="text-sm font-bold uppercase tracking-wide text-slate-800 dark:text-white">Lista de Precios</h3>
-            <button type="button" (click)="agregarPrecio()" class="inline-flex items-center gap-1 rounded bg-green-500 px-2 py-1 text-xs font-semibold text-white transition hover:bg-green-600">
-              <ng-icon name="lucidePlus" size="0.875rem" /> Agregar Precio
-            </button>
-          </div>
-
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs">
-              <thead>
-                <tr class="border-b border-slate-200 text-slate-500 dark:border-slate-800">
-                  <th class="pb-2 font-semibold">ACCIONES</th>
-                  <th class="pb-2 font-semibold">CANAL</th>
-                  <th class="pb-2 font-semibold">COSTEO</th>
-                  <th class="pb-2 font-semibold">UNITARIO</th>
-                  <th class="pb-2 font-semibold">FECHA MOD.</th>
-                </tr>
-              </thead>
-              <tbody>
-                @if (precios().length === 0) {
-                  <tr>
-                    <td colspan="5" class="py-6 text-center text-slate-400">Sin precios registrados.</td>
-                  </tr>
-                } @else {
-                  @for (row of precios(); track row.id) {
-                    <tr class="border-b border-slate-100 last:border-0 dark:border-slate-800/50">
-                      <td class="py-2">
-                        <div class="flex gap-1">
-                          <button (click)="editarPrecio(row.id)" class="text-slate-400 hover:text-primary"><ng-icon name="lucidePencil" size="1rem" /></button>
-                          <button (click)="eliminarPrecio(row.id)" class="text-slate-400 hover:text-red-500"><ng-icon name="lucideTrash" size="1rem" /></button>
-                        </div>
-                      </td>
-                      <td class="py-2">{{ row.canal }}</td>
-                      <td class="py-2">{{ row.costeo }}</td>
-                      <td class="py-2">{{ row.unitario }}</td>
-                      <td class="py-2 text-slate-400">{{ row.fecha }}</td>
-                    </tr>
-                  }
-                }
-              </tbody>
-            </table>
-          </div>
-        </div>
-
+      <div [class.pointer-events-none]="!productoSeleccionado()" [class.opacity-50]="!productoSeleccionado()" class="flex flex-col gap-3">
+        <app-imagen-producto
+          [idProducto]="productoSeleccionado()?.idProducto ?? null"
+          [imagenInicial]="productoSeleccionado()?.imagen ?? null"
+        />
+        <app-precios-producto [usuario]="usuarioActual()" />
       </div>
     </div>
   </div>
+
+  <!-- ==========================================
+       MODALES
+       ========================================== -->
+  <app-codigo-barra-modal
+    [abierto]="codigoBarraAbierto()"
+    [valorInicial]="formulario.controls.codigoBarra.value"
+    (cerrar)="codigoBarraAbierto.set(false)"
+    (guardar)="aplicarCodigosBarra($event)"
+  />
+
+  <app-proveedores-asociados-modal
+    [abierto]="proveedoresAsociadosAbierto()"
+    [idProducto]="productoSeleccionado()?.idProducto ?? null"
+    [codigoProducto]="productoSeleccionado()?.codigo ?? null"
+    [descripcionProducto]="productoSeleccionado()?.nombre ?? null"
+    (seleccionar)="seleccionarProveedor($event)"
+    (desvincular)="desvincularProveedor($event)"
+    (cerrar)="cerrarProveedoresAsociados()"
+  />
+
+  @if (catalogoAbierto(); as id) {
+    <app-catalogo-modal
+      [abierto]="true"
+      [config]="configCatalogos[id]"
+      [fuente]="fuentesCatalogo[id]"
+      (cerrar)="catalogoAbierto.set(null)"
+      (seleccionar)="aplicarCatalogo($event)"
+    />
+  }
 </section>

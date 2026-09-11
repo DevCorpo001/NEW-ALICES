@@ -1,0 +1,199 @@
+<section class="h-full flex flex-col gap-2.5 min-h-0 bg-slate-50 dark:bg-slate-950">
+
+  <div
+    appEnterNavigate
+    class="shrink-0 flex flex-wrap items-end gap-3 rounded-sm border border-slate-200 bg-white px-4 py-2.5 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+  >
+    <div class="min-w-[150px] flex-1">
+      <label for="filtro-codigo-tienda" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+        Código
+      </label>
+      <input
+        id="filtro-codigo-tienda"
+        type="text"
+        [value]="store.codigo()"
+        (input)="cambiarCodigo($event)"
+        placeholder="BUSCAR POR CÓDIGO"
+        class="h-[38px] w-full rounded-sm border-0 bg-white px-3 text-xs text-slate-900 shadow-sm outline outline-1 outline-slate-300 transition placeholder:text-slate-400 focus:outline-2 focus:outline-primary dark:bg-slate-800 dark:text-white dark:outline-slate-700"
+      />
+    </div>
+
+    <div class="min-w-[170px] flex-1">
+      <label for="filtro-razon" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+        Razón social
+      </label>
+      <select
+        id="filtro-razon"
+        [value]="store.idRazonSocial() ?? ''"
+        (change)="cambiarRazonSocial($event)"
+        class="h-[38px] w-full cursor-pointer rounded-sm border-0 bg-white px-3 text-xs text-slate-900 shadow-sm outline outline-1 outline-slate-300 transition focus:outline-2 focus:outline-primary dark:bg-slate-800 dark:text-white dark:outline-slate-700"
+      >
+        <option value="">Todas</option>
+        @for (empresa of store.empresas(); track empresa.idEmpresa) {
+          <option [value]="empresa.idEmpresa">{{ empresa.razonSocial }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="min-w-[150px] flex-1">
+      <label for="filtro-canal" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+        Canal
+      </label>
+      <select
+        id="filtro-canal"
+        [value]="store.idCanal() ?? ''"
+        (change)="cambiarCanal($event)"
+        class="h-[38px] w-full cursor-pointer rounded-sm border-0 bg-white px-3 text-xs text-slate-900 shadow-sm outline outline-1 outline-slate-300 transition focus:outline-2 focus:outline-primary dark:bg-slate-800 dark:text-white dark:outline-slate-700"
+      >
+        <option value="">Todos</option>
+        @for (canal of store.canales(); track canal.idCanal) {
+          <option [value]="canal.idCanal">{{ canal.nombre }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="min-w-[130px] flex-1">
+      <label for="filtro-estado-tienda" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+        Estado
+      </label>
+      <select
+        id="filtro-estado-tienda"
+        [value]="store.estado()"
+        (change)="cambiarEstado($event)"
+        class="h-[38px] w-full cursor-pointer rounded-sm border-0 bg-white px-3 text-xs text-slate-900 shadow-sm outline outline-1 outline-slate-300 transition focus:outline-2 focus:outline-primary dark:bg-slate-800 dark:text-white dark:outline-slate-700"
+      >
+        <option value="todos">Todos</option>
+        <option value="activo">Activo</option>
+        <option value="inactivo">Inactivo</option>
+      </select>
+    </div>
+
+    <div class="flex shrink-0 items-end gap-2">
+      <button
+        type="button"
+        (click)="store.limpiar()"
+        [disabled]="!store.hayFiltros()"
+        class="inline-flex h-[38px] items-center gap-1.5 whitespace-nowrap rounded-sm border border-slate-300 bg-white px-3 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+      >
+        <ng-icon name="lucideEraser" size="0.95rem" />
+        Limpiar
+      </button>
+      <button
+        type="button"
+        (click)="formAbierto.set(true)"
+        class="inline-flex h-[38px] items-center gap-1.5 whitespace-nowrap rounded-sm bg-primary px-3.5 text-xs font-semibold text-white shadow-sm transition hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+      >
+        <ng-icon name="lucidePlus" size="0.95rem" />
+        Agregar tienda
+      </button>
+      <button
+        type="button"
+        (click)="canalesAbierto.set(true)"
+        class="inline-flex h-[38px] items-center gap-1.5 whitespace-nowrap rounded-sm border border-primary bg-white px-3.5 text-xs font-semibold text-primary shadow-sm transition hover:bg-primary-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:bg-slate-900"
+      >
+        <ng-icon name="lucideNetwork" size="0.95rem" />
+        Gestión de canales
+      </button>
+    </div>
+  </div>
+
+  <div class="flex-1 min-h-0 flex flex-col overflow-hidden rounded-sm border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <div class="flex-1 min-h-0 overflow-auto scroll-marca">
+      <table class="w-full min-w-[1240px] text-left text-xs">
+        <thead class="sticky top-0 z-10 border-b border-slate-200 bg-slate-50 text-slate-500 shadow-[0_1px_0_0_rgba(0,0,0,0.05)] dark:border-slate-800 dark:bg-slate-800/95 dark:text-slate-400">
+          <tr>
+            <th class="w-12 whitespace-nowrap px-4 py-2.5 font-semibold">ID</th>
+            <th class="whitespace-nowrap px-4 py-2.5 font-semibold">CÓDIGO</th>
+            <th class="px-4 py-2.5 font-semibold">DIRECCIÓN</th>
+            <th class="whitespace-nowrap px-4 py-2.5 font-semibold">RUC</th>
+            <th class="px-4 py-2.5 font-semibold">RAZÓN SOCIAL</th>
+            <th class="px-4 py-2.5 font-semibold">EMP. DE ENVÍO</th>
+            <th class="whitespace-nowrap px-4 py-2.5 font-semibold">UBIGEO</th>
+            <th class="whitespace-nowrap px-4 py-2.5 text-right font-semibold">CANT. IMPR.</th>
+            <th class="whitespace-nowrap px-4 py-2.5 text-right font-semibold">SERIE</th>
+            <th class="whitespace-nowrap px-4 py-2.5 text-center font-semibold">STOCK</th>
+            <th class="whitespace-nowrap px-4 py-2.5 font-semibold">CANAL</th>
+            <th class="whitespace-nowrap px-4 py-2.5 font-semibold">ESTADO</th>
+            <th class="w-28 whitespace-nowrap px-4 py-2.5 text-right font-semibold">ACCIONES</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (store.cargando()) {
+            <tr><td colspan="13" class="py-10 text-center text-slate-400">Cargando tiendas...</td></tr>
+          } @else if (store.error()) {
+            <tr><td colspan="13" class="py-10 text-center text-error">No se pudieron cargar las tiendas.</td></tr>
+          } @else if (store.resultados().length === 0) {
+            <tr>
+              <td colspan="13" class="py-10 text-center text-slate-400">
+                @if (store.hayFiltros()) { Ninguna tienda coincide con los filtros. } @else { Sin tiendas registradas. }
+              </td>
+            </tr>
+          } @else {
+            @for (fila of store.resultados(); track fila.idTienda) {
+              <tr class="border-b border-slate-100 transition last:border-0 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800/50">
+                <td class="px-4 py-2.5 tabular-nums text-slate-400">{{ fila.idTienda }}</td>
+                <td class="whitespace-nowrap px-4 py-2.5 font-bold text-slate-800 dark:text-slate-200">{{ fila.codigo }}</td>
+                <td class="px-4 py-2.5 text-slate-500 dark:text-slate-400">{{ fila.direccion }}</td>
+                <td class="whitespace-nowrap px-4 py-2.5 tabular-nums text-slate-600 dark:text-slate-300">{{ fila.ruc }}</td>
+                <td class="px-4 py-2.5 text-slate-600 dark:text-slate-300">{{ fila.razonSocial }}</td>
+                <td class="px-4 py-2.5 text-slate-500 dark:text-slate-400">{{ fila.empresaEnvio }}</td>
+                <td class="whitespace-nowrap px-4 py-2.5 text-slate-500">{{ fila.ubigeo }}</td>
+                <td class="whitespace-nowrap px-4 py-2.5 text-right tabular-nums text-slate-500">{{ fila.cantidadImpresiones }}</td>
+                <td class="whitespace-nowrap px-4 py-2.5 text-right tabular-nums text-slate-500">{{ fila.serie || '—' }}</td>
+                <td class="whitespace-nowrap px-4 py-2.5 text-center">
+                  <span
+                    class="inline-block h-2 w-2 rounded-full"
+                    [class.bg-success]="fila.manejaStock"
+                    [class.bg-slate-300]="!fila.manejaStock"
+                    [title]="fila.manejaStock ? 'Actualiza stock' : 'No actualiza stock'"
+                  ></span>
+                </td>
+                <td class="whitespace-nowrap px-4 py-2.5 text-slate-600 dark:text-slate-300">{{ fila.canal }}</td>
+                <td class="whitespace-nowrap px-4 py-2.5">
+                  <app-estado-chip [activo]="fila.activo" textoActivo="ACTIVO" textoInactivo="INACTIVO" />
+                </td>
+                <td class="whitespace-nowrap px-4 py-2.5">
+                  <div class="flex items-center justify-end gap-2">
+                    <app-boton-accion
+                      icono="lucideSquarePen"
+                      [etiqueta]="'Editar la tienda ' + fila.codigo"
+                      (accion)="editar(fila)"
+                    />
+                    <app-boton-accion
+                      icono="lucideNetwork"
+                      [etiqueta]="(fila.activo ? 'Desactivar' : 'Activar') + ' la tienda ' + fila.codigo"
+                      [tono]="fila.activo ? 'peligro' : 'exito'"
+                      (accion)="store.alternarEstado(fila.idTienda)"
+                    />
+                  </div>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="shrink-0 border-t border-slate-200 px-4 py-2 text-xs text-slate-500 dark:border-slate-800">
+      Mostrando <span class="font-semibold tabular-nums">{{ store.resultados().length }}</span>
+      de <span class="font-semibold tabular-nums">{{ store.total() }}</span> tiendas
+      (<span class="font-semibold tabular-nums">{{ store.activas() }}</span> activas)
+    </div>
+  </div>
+</section>
+
+<app-tienda-form-modal
+  [abierto]="formAbierto()"
+  [canales]="store.canales()"
+  [empresas]="store.empresas()"
+  (cerrar)="formAbierto.set(false)"
+  (guardar)="guardarTienda($event)"
+/>
+
+<app-canales-modal
+  [abierto]="canalesAbierto()"
+  [canales]="store.canales()"
+  [siguienteId]="store.siguienteIdCanal()"
+  (cerrar)="canalesAbierto.set(false)"
+  (guardar)="guardarCanal($event)"
+/>

@@ -1,0 +1,148 @@
+<section class="flex h-full min-h-0 flex-col gap-3 bg-slate-50 py-1 dark:bg-slate-950">
+  <div class="shrink-0 px-4 max-[576px]:px-2">
+    <app-tabs [tabs]="tabs()" [activo]="store.tipo()" (activoChange)="cambiarTipo($event)" />
+  </div>
+
+  <div class="flex flex-1 min-h-0 flex-col gap-3 px-4 max-[576px]:px-2">
+    <div
+      appEnterNavigate
+      class="flex shrink-0 flex-wrap items-end gap-3.5 rounded-sm border border-slate-200 bg-white px-5 py-4 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+    >
+      <div class="min-w-[170px] flex-1">
+        <label for="filtro-codigo-perfil" class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+          Código {{ etiqueta().singular }}
+        </label>
+        <input
+          id="filtro-codigo-perfil"
+          type="text"
+          [value]="store.codigo()"
+          (input)="cambiarCodigo($event)"
+          [placeholder]="'CÓDIGO ' + etiqueta().singular.toUpperCase()"
+          class="h-[42px] w-full rounded-sm border-0 bg-white px-3.5 text-sm text-slate-900 shadow-sm outline outline-1 outline-slate-300 transition placeholder:text-slate-400 focus:outline-2 focus:outline-primary dark:bg-slate-800 dark:text-white dark:outline-slate-700"
+        />
+      </div>
+
+      <div class="min-w-[200px] flex-[2]">
+        <label for="filtro-nombre-perfil" class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+          Nombre {{ etiqueta().singular }}
+        </label>
+        <input
+          id="filtro-nombre-perfil"
+          type="text"
+          [value]="store.nombre()"
+          (input)="cambiarNombre($event)"
+          [placeholder]="'NOMBRE ' + etiqueta().singular.toUpperCase()"
+          class="h-[42px] w-full rounded-sm border-0 bg-white px-3.5 text-sm text-slate-900 shadow-sm outline outline-1 outline-slate-300 transition placeholder:text-slate-400 focus:outline-2 focus:outline-primary dark:bg-slate-800 dark:text-white dark:outline-slate-700"
+        />
+      </div>
+
+      <div class="min-w-[150px] flex-1">
+        <label for="filtro-estado-perfil" class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+          Estado
+        </label>
+        <select
+          id="filtro-estado-perfil"
+          [value]="store.estado()"
+          (change)="cambiarEstado($event)"
+          class="h-[42px] w-full cursor-pointer rounded-sm border-0 bg-white px-3.5 text-sm text-slate-900 shadow-sm outline outline-1 outline-slate-300 transition focus:outline-2 focus:outline-primary dark:bg-slate-800 dark:text-white dark:outline-slate-700"
+        >
+          <option value="todos">Todos</option>
+          <option value="activo">Activo</option>
+          <option value="inactivo">Inactivo</option>
+        </select>
+      </div>
+
+      <div class="flex shrink-0 items-end gap-2.5">
+        <button
+          type="button"
+          (click)="store.limpiar()"
+          [disabled]="!store.hayFiltros()"
+          class="inline-flex h-[42px] items-center gap-2 whitespace-nowrap rounded-sm border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+        >
+          <ng-icon name="lucideEraser" size="1rem" />
+          Limpiar Filtros
+        </button>
+        <button
+          type="button"
+          (click)="agregar()"
+          class="inline-flex h-[42px] items-center gap-2 whitespace-nowrap rounded-sm bg-primary px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+        >
+          <ng-icon name="lucideUserPlus" size="1rem" />
+          Agregar {{ etiqueta().singular }}
+        </button>
+      </div>
+    </div>
+
+    <div class="shrink-0">
+      <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-200/70 px-3.5 py-1.5 text-xs text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+        <span class="font-bold tabular-nums">{{ store.activos() }}</span>
+        {{ etiqueta().plural.toLowerCase() }} activos de
+        <span class="font-bold tabular-nums">{{ store.total() }}</span>
+        totales
+      </span>
+    </div>
+
+    <div class="flex flex-1 min-h-0 flex-col overflow-hidden rounded-sm border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div class="flex-1 min-h-0 overflow-auto scroll-marca">
+        <table class="w-full min-w-[520px] text-left text-xs">
+          <thead class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-800">
+            <tr class="border-b border-slate-200 bg-slate-50 text-slate-500 dark:border-slate-800 dark:bg-slate-800">
+              <th class="w-32 whitespace-nowrap px-4 py-3 font-semibold">CÓDIGO</th>
+              <th class="whitespace-nowrap px-4 py-3 font-semibold">NOMBRE</th>
+              <th class="w-32 whitespace-nowrap px-4 py-3 font-semibold">ESTADO</th>
+              <th class="w-32 whitespace-nowrap px-4 py-3 text-right font-semibold">ACCIONES</th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (store.cargando()) {
+              <tr><td colspan="4" class="py-10 text-center text-slate-400">Cargando {{ etiqueta().plural.toLowerCase() }}...</td></tr>
+            } @else if (store.error()) {
+              <tr><td colspan="4" class="py-10 text-center text-error">No se pudieron cargar los datos.</td></tr>
+            } @else if (store.resultados().length === 0) {
+              <tr>
+                <td colspan="4" class="py-10 text-center text-slate-400">
+                  @if (store.hayFiltros()) {
+                    Ningún registro coincide con los filtros.
+                  } @else {
+                    Sin {{ etiqueta().plural.toLowerCase() }} registrados.
+                  }
+                </td>
+              </tr>
+            } @else {
+              @for (fila of store.resultados(); track fila.idPerfil) {
+                <tr class="border-b border-slate-100 transition last:border-0 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800/50">
+                  <td class="whitespace-nowrap px-4 py-3 font-bold tabular-nums text-slate-800 dark:text-slate-200">{{ fila.codigo }}</td>
+                  <td class="px-4 py-3 text-slate-700 dark:text-slate-300">{{ fila.nombre }}</td>
+                  <td class="whitespace-nowrap px-4 py-3">
+                    <app-estado-chip [activo]="fila.estado === 'A'" />
+                  </td>
+                  <td class="whitespace-nowrap px-4 py-3">
+                    <div class="flex items-center justify-end gap-2">
+                      <app-boton-accion
+                        icono="lucideUserPen"
+                        [etiqueta]="'Editar ' + fila.nombre"
+                        (accion)="editar(fila)"
+                      />
+                      <app-boton-accion
+                        icono="lucideRefreshCw"
+                        [etiqueta]="(fila.estado === 'A' ? 'Desactivar ' : 'Activar ') + fila.nombre"
+                        [tono]="fila.estado === 'A' ? 'peligro' : 'exito'"
+                        (accion)="store.alternarEstado(fila.idPerfil)"
+                      />
+                    </div>
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="shrink-0 border-t border-slate-200 px-5 py-2.5 text-xs text-slate-500 dark:border-slate-800">
+        Mostrando <span class="font-semibold tabular-nums">{{ store.resultados().length }}</span>
+        de <span class="font-semibold tabular-nums">{{ store.total() }}</span>
+        {{ etiqueta().plural.toLowerCase() }}
+      </div>
+    </div>
+  </div>
+</section>

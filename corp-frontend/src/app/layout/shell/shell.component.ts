@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component, HostListener, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostListener, inject, signal, viewChild } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { MarqueeComponent } from '../../shared/ui/marquee/marquee.component';
+import { MensajesFooterService } from '../../core/services/mensajes-footer.service';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { TopbarComponent } from '../topbar/topbar.component';
 
@@ -11,7 +12,7 @@ import { TopbarComponent } from '../topbar/topbar.component';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ShellComponent {
-  readonly marqueeMessage = 'BIENVENIDO AL SISTEMA ALICE´S';
+  readonly footer = inject(MensajesFooterService);
 
   readonly open = signal(false);
 

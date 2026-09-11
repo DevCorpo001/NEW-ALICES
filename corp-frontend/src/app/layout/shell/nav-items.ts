@@ -27,12 +27,12 @@ export const navItems: NavItem[] = [
     children: [
       { label: 'Mensajes', route: '/sistema/mensajes' },
       { label: 'Notificaciones', route: '/sistema/notificaciones' },
-      { label: 'Vendedor / Caja', route: '/sistema/vendedor-caja' },
+      { label: 'Perfiles', route: '/sistema/vendedor-caja' },
       { label: 'Permisos', route: '/sistema/permisos' },
-      { label: 'Usuarios / Rol', route: '/sistema/usuarios-rol' },
+      { label: 'Usuarios / Roles', route: '/sistema/usuarios-rol' },
       { label: 'Clave Sesión', route: '/sistema/clave-sesion' },
-      { label: 'Conductor', route: '/sistema/conductor' },
-      { label: 'Cliente', route: '/sistema/cliente' },
+      { label: 'Conductor y Vehículos', route: '/sistema/conductor' },
+      { label: 'Clientes', route: '/sistema/cliente' },
       { label: 'Auditoría', route: '/sistema/auditoria' }
     ]
   },

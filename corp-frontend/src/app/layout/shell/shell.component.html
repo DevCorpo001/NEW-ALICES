@@ -8,16 +8,21 @@
 <app-sidebar [isOpen]="open()" (closed)="closeMenu()" />
 
 <div
-  class="flex min-h-screen flex-col bg-surface text-slate-900 transition-colors dark:bg-slate-950 dark:text-slate-100"
+  class="flex h-screen h-dvh flex-col overflow-hidden bg-slate-50 text-slate-900 transition-colors dark:bg-slate-950 dark:text-slate-100"
 >
-  <app-topbar [menuExpanded]="open()" (menuToggled)="toggleMenu()" />
+  <app-topbar [menuExpanded]="open()" (menuToggled)="toggleMenu()" class="shrink-0" />
 
   <main
     id="contenido-principal"
-    class="mx-auto w-full max-w-[1440px] flex-1 px-4 py-6 pb-16 sm:px-6 lg:px-8"
+    class="flex-1 min-h-0 w-full overflow-hidden flex flex-col px-3 py-2 sm:px-5 sm:py-2.5 lg:px-6"
   >
     <router-outlet />
   </main>
-</div>
 
-<app-marquee [text]="marqueeMessage" />
+  <app-marquee
+    class="shrink-0"
+    [mensajes]="footer.textos()"
+    [colorTexto]="footer.colorTexto()"
+    [colorFondo]="footer.colorFondo()"
+  />
+</div>

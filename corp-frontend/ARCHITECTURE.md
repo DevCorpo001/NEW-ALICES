@@ -13,9 +13,13 @@ convenciones complementarias.
 - Angular standalone; no usar NgModules salvo justificacion explicita.
 - Signals para estado local y servicios con Signals para estado transversal.
 - Reactive Forms para formularios.
-- Tailwind como sistema de estilos; Spartan/ng para interacciones complejas.
+- Tailwind como sistema de estilos; `@angular/cdk` como unica libreria de
+  primitivas de interaccion (`ListKeyManager`, `Overlay`, `FocusTrap`). No se
+  usa Spartan/ng ni ninguna otra libreria de componentes: el CDK aporta
+  comportamiento y accesibilidad, el aspecto es siempre Tailwind propio.
 - `HttpClient` mediante `provideHttpClient()` y proxy en desarrollo.
-- TypeScript estricto; no usar `any` para ocultar contratos incompletos.
+- TypeScript estricto (`strict` y `strictTemplates` activos en `tsconfig.json`);
+  no usar `any` para ocultar contratos incompletos.
 - El frontend presenta y orquesta; no replica reglas de negocio del backend.
 
 ## 2. Capas y dependencias
@@ -46,22 +50,31 @@ HttpClient -> API
 ```text
 src/app/
   core/
-    auth/                 # sesion, guard y contratos de auth
+    auth/                 # sesion, authGuard y contratos de auth
     http/                 # interceptores
+    routing/              # guards de navegacion y tipo SubmoduleViews
     services/             # servicios transversales
   shared/
-    components/
     directives/
-    pipes/
+    services/
+    ui/                   # componentes compartidos (autocomplete, modal, ...)
   features/
     <feature>/
-      data-access/        # modelos, servicios y stores
-      ui/                 # componentes de presentacion
+      data-access/        # organizado por subcarpetas de dominio (<dominio>/)
+      ui/                 # componentes de presentacion organizados por dominio
       feature-<feature>.routes.ts
   layout/
   app.config.ts
   app.routes.ts
 ```
+
+### Regla de organización en `data-access`
+Dentro de cada feature, la carpeta `data-access` debe estar organizada por subcarpetas de dominio, igual que la carpeta `ui` del mismo feature. Nunca colocar archivos de distintos dominios sueltos directamente en `data-access`.
+Al crear un archivo nuevo en `data-access`, identificar primero a qué dominio pertenece (por su prefijo o por el modelo que maneja) y colocarlo en su subcarpeta correspondiente (`almacen/`, `catalogo/`, `grupo/`, `producto/`, `tienda/`, etc.). Si el dominio no tiene subcarpeta todavía, crearla.
+
+Los componentes compartidos viven en `shared/ui/<nombre>/`. Antes de crear uno
+nuevo, revisar el inventario del skill `pos-frontend`: si algo va a usarse en
+dos features, va aqui y no duplicado.
 
 ## 4. Estado
 
@@ -100,15 +113,22 @@ src/app/
 - Cada feature expone sus rutas en `feature-<feature>.routes.ts`.
 - Las rutas se cargan lazy cuando el feature lo justifica.
 - `app.routes.ts` solo compone rutas publicas, layout y features.
-- Los guards controlan acceso, no reemplazan autorizacion del backend.
+- Los modulos y submodulos del menu se generan desde `layout/shell/nav-items.ts`.
+  Un submodulo con vista propia se declara en el `SubmoduleViews` de su feature
+  (`'modulo/submodulo' -> loader`) y `app.routes.ts` compone esos registros; lo
+  no declarado cae en `coming-soon`.
+- Los guards controlan acceso, no reemplazan autorizacion del backend. `authGuard`
+  vive en `core/auth`; los guards de navegacion en `core/routing`.
 
 ## 8. UX y accesibilidad
 
 - Aplicar siempre `FRONTEND.md` y el skill `pos-frontend`.
 - Toda vista de captura o filtros debe tener autofocus, flujo Enter y boton
   primario claramente marcado.
-- Usar una directiva reutilizable para foco y Enter; no copiar handlers por
-  pantalla.
+- Usar una directiva reutilizable para foco y Enter (`appEnterNavigate` y
+  `appEnterPrimary` en `shared/directives`); no copiar handlers por pantalla.
+- Navegacion por teclado en listas: `ListKeyManager` del CDK. Paneles flotantes:
+  CDK Overlay, para que no los recorte un contenedor con `overflow`.
 - Labels asociados, foco visible, mensajes de error accesibles y controles
   utilizables con teclado.
 
@@ -138,6 +158,10 @@ src/app/
 - Guardar JWT en storage accesible por JavaScript.
 - Llamar `HttpClient` desde componentes de presentacion.
 - Importar un feature dentro de otro feature.
-- Repetir componentes complejos que ya resuelve Spartan/ng.
+- Duplicar un componente de `shared/ui` dentro de un feature en lugar de
+  parametrizarlo.
+- Anadir una libreria de componentes UI (Spartan/ng, Material, Flowbite): el
+  comportamiento se toma de `@angular/cdk`.
+- Usar una dependencia sin declararla en `package.json`.
 - Usar CSS global o colores fuera de los tokens definidos sin justificacion.
 - Colocar reglas de permisos o negocio como unica defensa en el frontend.

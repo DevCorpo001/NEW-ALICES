@@ -1,9 +1,23 @@
-<div
-  class="fixed inset-x-0 bottom-0 z-20 flex h-10 items-center justify-center overflow-hidden border-t border-white/20 bg-primary text-white"
-  aria-hidden="true"
->
-  <p class="marquee-pingpong whitespace-nowrap px-4 text-base font-bold tracking-wide">
-    {{ text() }}
-  </p>
-</div>
-<p class="sr-only">{{ text() }}</p>
+@if (hayMensajes()) {
+  <div
+    class="relative z-20 flex h-8 sm:h-9 w-full shrink-0 items-center overflow-hidden border-t border-white/20"
+    [style.background-color]="colorFondo()"
+    [style.color]="colorTexto()"
+  >
+    <!-- Arranca fuera por la derecha (`left: 100%`) y recorre pantalla + su propio ancho. -->
+    <div
+      class="marquee-track flex w-max items-center"
+      [style.--marquee-duracion]="duracion()"
+      aria-hidden="true"
+    >
+      @for (mensaje of visibles(); track $index) {
+        @if (!$first) {
+          <span class="px-2 text-base opacity-60">•</span>
+        }
+        <span class="whitespace-nowrap px-4 text-base font-bold tracking-wide">{{ mensaje }}</span>
+      }
+    </div>
+  </div>
+
+  <p class="sr-only">{{ leido() }}</p>
+}

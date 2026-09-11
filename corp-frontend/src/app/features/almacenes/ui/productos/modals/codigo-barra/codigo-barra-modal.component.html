@@ -1,0 +1,92 @@
+<app-modal [abierto]="abierto()" titulo="Código de Barra" (cerrar)="cerrar.emit()">
+  <div appEnterNavigate class="px-5 py-4">
+    <label for="nuevo-codigo-barra" class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+      Nuevo código de barra
+    </label>
+    <div class="flex flex-wrap gap-2">
+      <input
+        id="nuevo-codigo-barra"
+        type="text"
+        [formControl]="nuevoCodigoBarra"
+        (input)="limpiarError()"
+        (keydown.enter)="agregarCodigoBarra()"
+        placeholder="Ingrese código de barra"
+        [attr.aria-invalid]="error() !== null"
+        [attr.aria-describedby]="error() ? 'error-codigo-barra' : null"
+        class="h-9 min-w-0 flex-1 rounded border border-slate-300 px-3 text-sm uppercase outline-none focus:border-primary aria-[invalid=true]:border-error dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+      />
+      <button
+        type="button"
+        (click)="agregarCodigoBarra()"
+        [disabled]="validando()"
+        class="inline-flex h-9 items-center gap-1.5 whitespace-nowrap rounded bg-primary px-3.5 text-xs font-semibold text-white transition hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        @if (validando()) {
+          <ng-icon name="lucideLoaderCircle" size="0.875rem" class="animate-spin" /> Validando...
+        } @else {
+          <ng-icon name="lucidePlus" size="0.875rem" /> Agregar
+        }
+      </button>
+    </div>
+
+    @if (error(); as mensaje) {
+      <p id="error-codigo-barra" role="alert" class="mt-1.5 text-xs font-semibold text-error">
+        {{ mensaje }}
+      </p>
+    }
+
+    <div class="mt-4 max-h-[220px] overflow-y-auto rounded-md border border-slate-200 dark:border-slate-800">
+      <table class="w-full min-w-[280px] text-left text-xs">
+        <thead>
+          <tr class="border-b border-slate-200 bg-slate-50 text-slate-500 dark:border-slate-800 dark:bg-slate-800/50">
+            <th class="sticky top-0 whitespace-nowrap bg-slate-50 px-3 py-2.5 font-semibold dark:bg-slate-800/50">ID</th>
+            <th class="sticky top-0 whitespace-nowrap bg-slate-50 px-3 py-2.5 font-semibold dark:bg-slate-800/50">CÓDIGO DE BARRA</th>
+            <th class="sticky top-0 whitespace-nowrap bg-slate-50 px-3 py-2.5 text-right font-semibold dark:bg-slate-800/50">ACCIÓN</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (codigosBarra().length === 0) {
+            <tr>
+              <td colspan="3" class="py-6 text-center text-slate-400">Sin códigos de barra.</td>
+            </tr>
+          } @else {
+            @for (row of codigosBarra(); track row.id) {
+              <tr class="border-b border-slate-100 last:border-0 dark:border-slate-800/50">
+                <td class="whitespace-nowrap px-3 py-2 text-slate-500">{{ row.id }}</td>
+                <td class="whitespace-nowrap px-3 py-2 font-medium uppercase text-slate-700 dark:text-slate-200">{{ row.codigo }}</td>
+                <td class="whitespace-nowrap px-3 py-2 text-right">
+                  <button
+                    type="button"
+                    (click)="eliminarCodigoBarra(row.id)"
+                    aria-label="Eliminar código de barra"
+                    class="text-slate-400 transition hover:text-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                  >
+                    <ng-icon name="lucideTrash" size="1rem" />
+                  </button>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mt-5 flex justify-end gap-2.5 border-t border-slate-200 pt-4 dark:border-slate-800">
+      <button
+        type="button"
+        (click)="cerrar.emit()"
+        class="inline-flex h-10 items-center justify-center gap-2 whitespace-nowrap rounded-md border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+      >
+        Cancelar
+      </button>
+      <button
+        type="button"
+        appEnterPrimary
+        (click)="guardarCodigos()"
+        class="inline-flex h-10 items-center justify-center gap-2 whitespace-nowrap rounded-md bg-primary px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+      >
+        <ng-icon name="lucideSave" size="1rem" /> Guardar
+      </button>
+    </div>
+  </div>
+</app-modal>

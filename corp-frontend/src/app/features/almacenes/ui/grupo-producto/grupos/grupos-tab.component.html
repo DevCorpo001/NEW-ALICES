@@ -1,0 +1,161 @@
+<div class="flex h-full min-h-0 flex-col gap-3 px-4 max-[576px]:px-2">
+  <div
+    appEnterNavigate
+    class="shrink-0 flex flex-wrap items-end gap-3.5 rounded-sm border border-slate-200 bg-white px-5 py-4 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+  >
+    <div class="min-w-[190px] flex-[2]">
+      <label for="filtro-nombre-grupo" class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+        Nombre
+      </label>
+      <input
+        id="filtro-nombre-grupo"
+        type="text"
+        [value]="store.nombre()"
+        (input)="cambiarNombre($event)"
+        placeholder="NOMBRE DEL GRUPO"
+        class="h-[42px] w-full rounded-sm border-0 bg-white px-3.5 text-sm text-slate-900 shadow-sm outline outline-1 outline-slate-300 transition placeholder:text-slate-400 focus:outline-2 focus:outline-primary dark:bg-slate-800 dark:text-white dark:outline-slate-700"
+      />
+    </div>
+
+    <div class="min-w-[150px] flex-1">
+      <label for="filtro-codigo-grupo" class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+        Código
+      </label>
+      <input
+        id="filtro-codigo-grupo"
+        type="text"
+        [value]="store.codigo()"
+        (input)="cambiarCodigo($event)"
+        placeholder="CÓDIGO DEL GRUPO"
+        class="h-[42px] w-full rounded-sm border-0 bg-white px-3.5 text-sm text-slate-900 shadow-sm outline outline-1 outline-slate-300 transition placeholder:text-slate-400 focus:outline-2 focus:outline-primary dark:bg-slate-800 dark:text-white dark:outline-slate-700"
+      />
+    </div>
+
+    <div class="min-w-[150px] flex-1">
+      <label for="filtro-abrev-grupo" class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+        Abreviación
+      </label>
+      <input
+        id="filtro-abrev-grupo"
+        type="text"
+        [value]="store.abreviacion()"
+        (input)="cambiarAbreviacion($event)"
+        placeholder="ABREVIACIÓN"
+        class="h-[42px] w-full rounded-sm border-0 bg-white px-3.5 text-sm text-slate-900 shadow-sm outline outline-1 outline-slate-300 transition placeholder:text-slate-400 focus:outline-2 focus:outline-primary dark:bg-slate-800 dark:text-white dark:outline-slate-700"
+      />
+    </div>
+
+    <div class="min-w-[170px] flex-1">
+      <label for="filtro-canal-grupo" class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+        Canal
+      </label>
+      <select
+        id="filtro-canal-grupo"
+        [value]="store.idCanalGrupo() ?? ''"
+        (change)="cambiarCanal($event)"
+        class="h-[42px] w-full cursor-pointer rounded-sm border-0 bg-white px-3.5 text-sm text-slate-900 shadow-sm outline outline-1 outline-slate-300 transition focus:outline-2 focus:outline-primary dark:bg-slate-800 dark:text-white dark:outline-slate-700"
+      >
+        <option value="">Todos</option>
+        @for (canal of store.canales(); track canal.idCanal) {
+          <option [value]="canal.idCanal">{{ canal.nombre }}</option>
+        }
+      </select>
+    </div>
+
+    <label class="flex h-[42px] shrink-0 items-center gap-2.5 text-sm text-slate-700 dark:text-slate-300">
+      <input
+        type="checkbox"
+        [checked]="store.soloConProductos()"
+        (change)="cambiarSoloConProductos($event)"
+        class="h-4 w-4 cursor-pointer accent-primary"
+      />
+      Solo con productos
+    </label>
+
+    <button
+      type="button"
+      (click)="store.limpiarGrupos()"
+      [disabled]="!store.hayFiltrosGrupo()"
+      class="inline-flex h-[42px] shrink-0 items-center gap-2 whitespace-nowrap rounded-sm border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+    >
+      <ng-icon name="lucideEraser" size="1rem" />
+      Limpiar
+    </button>
+  </div>
+
+  <div class="flex flex-1 min-h-0 flex-col overflow-hidden rounded-sm border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <div class="flex-1 min-h-0 overflow-auto scroll-marca">
+      <table class="w-full min-w-[760px] text-left text-xs">
+        <thead class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-800">
+          <tr class="border-b border-slate-200 bg-slate-50 text-slate-500 dark:border-slate-800 dark:bg-slate-800">
+            <th class="px-4 py-3 font-semibold">NOMBRE</th>
+            <th class="w-32 whitespace-nowrap px-4 py-3 font-semibold">CÓDIGO</th>
+            <th class="w-48 whitespace-nowrap px-4 py-3 font-semibold">CANAL</th>
+            <th class="w-28 whitespace-nowrap px-4 py-3 text-right font-semibold">PRODUCTOS</th>
+            <th class="w-36 whitespace-nowrap px-4 py-3 text-right font-semibold">ACCIONES</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (store.cargando()) {
+            <tr><td colspan="5" class="py-10 text-center text-slate-400">Cargando grupos...</td></tr>
+          } @else if (store.error()) {
+            <tr><td colspan="5" class="py-10 text-center text-error">No se pudieron cargar los grupos.</td></tr>
+          } @else if (store.gruposFiltrados().length === 0) {
+            <tr>
+              <td colspan="5" class="py-10 text-center text-slate-400">
+                @if (store.hayFiltrosGrupo()) { Ningún grupo coincide con los filtros. } @else { Sin grupos registrados. }
+              </td>
+            </tr>
+          } @else {
+            @for (fila of store.gruposFiltrados(); track fila.idGrupo) {
+              <tr class="border-b border-slate-100 transition last:border-0 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800/50">
+                <td class="px-4 py-3 font-semibold text-slate-800 dark:text-slate-200">{{ fila.nombre }}</td>
+                <td class="whitespace-nowrap px-4 py-3 text-slate-500">{{ fila.codigo }}</td>
+                <td class="whitespace-nowrap px-4 py-3 text-slate-600 dark:text-slate-300">{{ fila.canal }}</td>
+                <td class="whitespace-nowrap px-4 py-3 text-right tabular-nums">
+                  @if (fila.productos > 0) {
+                    <span class="text-slate-700 dark:text-slate-200">{{ fila.productos }}</span>
+                  } @else {
+                    <span class="text-slate-300 dark:text-slate-600">0</span>
+                  }
+                </td>
+                <td class="whitespace-nowrap px-4 py-3">
+                  <div class="flex items-center justify-end gap-2">
+                    <app-boton-accion
+                      icono="lucideEye"
+                      [etiqueta]="'Ver los productos de ' + fila.nombre"
+                      (accion)="verGrupo.set(fila)"
+                    />
+                    <app-boton-accion
+                      icono="lucideSquarePen"
+                      [etiqueta]="'Editar ' + fila.nombre"
+                      (accion)="editar(fila)"
+                    />
+                    <app-boton-accion
+                      icono="lucideTrash2"
+                      [etiqueta]="'Eliminar ' + fila.nombre"
+                      tono="peligro"
+                      (accion)="eliminar(fila)"
+                    />
+                  </div>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="shrink-0 border-t border-slate-200 px-5 py-2.5 text-xs text-slate-500 dark:border-slate-800">
+      Mostrando <span class="font-semibold tabular-nums">{{ store.gruposFiltrados().length }}</span>
+      de <span class="font-semibold tabular-nums">{{ store.totalGrupos() }}</span> grupos
+    </div>
+  </div>
+
+  <app-productos-grupo-modal
+    [abierto]="verGrupo() !== null"
+    [grupo]="verGrupo()"
+    [productos]="productosDelGrupo()"
+    (cerrar)="verGrupo.set(null)"
+  />
+</div>
