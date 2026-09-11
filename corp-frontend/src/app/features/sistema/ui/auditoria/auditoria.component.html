@@ -1,0 +1,189 @@
+<section class="flex h-full min-h-0 flex-col gap-3 bg-slate-50 px-4 py-1 dark:bg-slate-950 max-[576px]:px-2">
+
+  <div
+    appEnterNavigate
+    class="flex shrink-0 flex-wrap items-end gap-3.5 rounded-sm border border-slate-200 bg-white px-5 py-4 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+  >
+    <div class="min-w-[180px] flex-1">
+      <label for="aud-usuario" class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+        Usuario
+      </label>
+      <input
+        id="aud-usuario"
+        type="text"
+        [value]="store.borrador().usuario"
+        (input)="cambiar('usuario', $event)"
+        (keydown.enter)="store.aplicar()"
+        placeholder="BUSCAR POR USUARIO..."
+        class="h-[42px] w-full rounded-sm border-0 bg-white px-3.5 text-sm text-slate-900 shadow-sm outline outline-1 outline-slate-300 transition placeholder:text-slate-400 focus:outline-2 focus:outline-primary dark:bg-slate-800 dark:text-white dark:outline-slate-700"
+      />
+    </div>
+
+    <div class="min-w-[170px] flex-1">
+      <label for="aud-modulo" class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+        Módulo
+      </label>
+      <select
+        id="aud-modulo"
+        [value]="store.borrador().modulo"
+        (change)="cambiar('modulo', $event)"
+        class="h-[42px] w-full cursor-pointer rounded-sm border-0 bg-white px-3.5 text-sm text-slate-900 shadow-sm outline outline-1 outline-slate-300 transition focus:outline-2 focus:outline-primary dark:bg-slate-800 dark:text-white dark:outline-slate-700"
+      >
+        <option value="">Todos los módulos</option>
+        @for (modulo of store.modulos(); track modulo) {
+          <option [value]="modulo">{{ modulo }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="min-w-[180px] flex-1">
+      <label for="aud-accion" class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+        Tipo acción
+      </label>
+      <select
+        id="aud-accion"
+        [value]="store.borrador().accion"
+        (change)="cambiar('accion', $event)"
+        class="h-[42px] w-full cursor-pointer rounded-sm border-0 bg-white px-3.5 text-sm text-slate-900 shadow-sm outline outline-1 outline-slate-300 transition focus:outline-2 focus:outline-primary dark:bg-slate-800 dark:text-white dark:outline-slate-700"
+      >
+        <option value="">Todas las acciones</option>
+        @for (accion of store.acciones(); track accion) {
+          <option [value]="accion">{{ accion }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="min-w-[150px]">
+      <label for="aud-desde" class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+        Desde
+      </label>
+      <input
+        id="aud-desde"
+        type="date"
+        [value]="store.borrador().desde"
+        (change)="cambiar('desde', $event)"
+        class="h-[42px] w-full rounded-sm border-0 bg-white px-3.5 text-sm text-slate-900 shadow-sm outline outline-1 outline-slate-300 transition focus:outline-2 focus:outline-primary dark:bg-slate-800 dark:text-white dark:outline-slate-700"
+      />
+    </div>
+
+    <div class="min-w-[150px]">
+      <label for="aud-hasta" class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+        Hasta
+      </label>
+      <input
+        id="aud-hasta"
+        type="date"
+        [value]="store.borrador().hasta"
+        (change)="cambiar('hasta', $event)"
+        class="h-[42px] w-full rounded-sm border-0 bg-white px-3.5 text-sm text-slate-900 shadow-sm outline outline-1 outline-slate-300 transition focus:outline-2 focus:outline-primary dark:bg-slate-800 dark:text-white dark:outline-slate-700"
+      />
+    </div>
+
+    <div class="flex shrink-0 items-end gap-2.5">
+      <button
+        type="button"
+        (click)="store.aplicar()"
+        class="inline-flex h-[42px] items-center gap-2 whitespace-nowrap rounded-sm bg-primary px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+      >
+        <ng-icon name="lucideFunnel" size="1rem" />
+        Aplicar
+      </button>
+      <button
+        type="button"
+        (click)="store.limpiar()"
+        [disabled]="!store.hayFiltros() && !store.sinAplicar()"
+        class="inline-flex h-[42px] items-center gap-2 whitespace-nowrap rounded-sm border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+      >
+        <ng-icon name="lucideEraser" size="1rem" />
+        Limpiar
+      </button>
+    </div>
+  </div>
+
+  <div class="shrink-0 flex flex-wrap items-center gap-2">
+    <span class="inline-flex items-center gap-1.5 rounded-full bg-success-light px-3.5 py-1.5 text-xs font-semibold text-success">
+      <span class="tabular-nums">{{ store.resultados().length }}</span>
+      @if (store.hayFiltros()) { de {{ store.total() }} registros } @else { registros en total }
+    </span>
+
+    @if (store.sinAplicar()) {
+      <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3.5 py-1.5 text-xs font-semibold text-amber-700 dark:bg-amber-500/15 dark:text-amber-300">
+        Hay filtros sin aplicar
+      </span>
+    }
+  </div>
+
+  <div class="flex flex-1 min-h-0 flex-col overflow-hidden rounded-sm border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <div class="flex-1 min-h-0 overflow-auto scroll-marca">
+      <table class="w-full min-w-[1100px] text-left text-xs">
+        <thead class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-800">
+          <tr class="border-b border-slate-200 bg-slate-50 text-slate-500 dark:border-slate-800 dark:bg-slate-800">
+            <th class="w-14 whitespace-nowrap px-4 py-3 font-semibold">ID</th>
+            <th class="w-44 whitespace-nowrap px-4 py-3 font-semibold">FECHA / HORA</th>
+            <th class="whitespace-nowrap px-4 py-3 font-semibold">USUARIO</th>
+            <th class="whitespace-nowrap px-4 py-3 font-semibold">MÓDULO</th>
+            <th class="whitespace-nowrap px-4 py-3 font-semibold">TIPO ACCIÓN</th>
+            <th class="whitespace-nowrap px-4 py-3 font-semibold">REGISTRO AFECTADO</th>
+            <th class="whitespace-nowrap px-4 py-3 font-semibold">CAMPO</th>
+            <th class="whitespace-nowrap px-4 py-3 font-semibold">VALOR ANTERIOR</th>
+            <th class="whitespace-nowrap px-4 py-3 font-semibold">VALOR NUEVO</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (store.cargando()) {
+            <tr><td colspan="9" class="py-10 text-center text-slate-400">Cargando movimientos...</td></tr>
+          } @else if (store.error()) {
+            <tr><td colspan="9" class="py-10 text-center text-error">No se pudo cargar la auditoría.</td></tr>
+          } @else if (store.resultados().length === 0) {
+            <tr>
+              <td colspan="9" class="py-10 text-center text-slate-400">
+                @if (store.hayFiltros()) { Ningún movimiento coincide con los filtros. } @else { Sin movimientos registrados. }
+              </td>
+            </tr>
+          } @else {
+            @for (fila of store.resultados(); track fila.idAuditoria) {
+              <tr class="border-b border-slate-100 transition last:border-0 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800/50">
+                <td class="px-4 py-3 tabular-nums text-slate-400">{{ fila.idAuditoria }}</td>
+                <td class="whitespace-nowrap px-4 py-3 tabular-nums text-slate-600 dark:text-slate-300">
+                  {{ fila.fechaHora | date: 'dd/MM/yyyy, HH:mm' }}
+                </td>
+                <td class="whitespace-nowrap px-4 py-3 font-semibold text-slate-800 dark:text-slate-200">{{ fila.usuario }}</td>
+                <td class="whitespace-nowrap px-4 py-3 text-slate-600 dark:text-slate-300">{{ fila.modulo }}</td>
+                <td class="whitespace-nowrap px-4 py-3">
+                  <span class="inline-flex rounded-sm px-2 py-1 text-[11px] font-bold {{ tono(fila.accion) }}">
+                    {{ fila.accion }}
+                  </span>
+                </td>
+                <td class="whitespace-nowrap px-4 py-3 text-slate-600 dark:text-slate-300">{{ fila.registroAfectado }}</td>
+                <td class="whitespace-nowrap px-4 py-3 text-slate-500">{{ fila.campo }}</td>
+                <td class="whitespace-nowrap px-4 py-3">
+                  @if (fila.valorAnterior === null) {
+                    <span class="text-slate-300 dark:text-slate-600">—</span>
+                  } @else if (esSensible(fila)) {
+                    <app-clave-oculta [clave]="fila.valorAnterior" [de]="fila.registroAfectado" />
+                  } @else {
+                    <span class="text-slate-600 dark:text-slate-300">{{ fila.valorAnterior }}</span>
+                  }
+                </td>
+                <td class="whitespace-nowrap px-4 py-3">
+                  @if (fila.valorNuevo === null) {
+                    <span class="text-slate-300 dark:text-slate-600">—</span>
+                  } @else if (esSensible(fila)) {
+                    <app-clave-oculta [clave]="fila.valorNuevo" [de]="fila.registroAfectado" />
+                  } @else {
+                    <span class="text-slate-600 dark:text-slate-300">{{ fila.valorNuevo }}</span>
+                  }
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="shrink-0 border-t border-slate-200 px-5 py-2.5 text-xs text-slate-500 dark:border-slate-800">
+      Mostrando <span class="font-semibold tabular-nums">{{ store.resultados().length }}</span>
+      {{ store.resultados().length === 1 ? 'registro' : 'registros' }}
+    </div>
+  </div>
+</section>

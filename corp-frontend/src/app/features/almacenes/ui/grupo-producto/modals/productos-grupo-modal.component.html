@@ -1,0 +1,48 @@
+<app-modal
+  [abierto]="abierto()"
+  [titulo]="grupo()?.nombre ?? 'Productos del grupo'"
+  ancho="3xl"
+  [hintF2]="true"
+  (cerrar)="cerrar.emit()"
+>
+  <div class="flex flex-col gap-3 p-5">
+    @if (grupo(); as detalle) {
+      <p class="text-xs text-slate-500 dark:text-slate-400">
+        Código <span class="font-semibold text-slate-700 dark:text-slate-200">{{ detalle.codigo }}</span>
+        · Abreviación <span class="font-semibold text-slate-700 dark:text-slate-200">{{ detalle.abreviacion }}</span>
+        · <span class="font-semibold text-slate-700 dark:text-slate-200">{{ detalle.canal }}</span>
+      </p>
+    }
+
+    <div class="overflow-hidden rounded-sm border border-slate-200 dark:border-slate-800">
+      <table class="w-full text-left text-xs">
+        <thead>
+          <tr class="border-b border-slate-200 bg-slate-50 text-slate-500 dark:border-slate-800 dark:bg-slate-800/50">
+            <th class="w-32 px-4 py-3 font-semibold">CÓDIGO</th>
+            <th class="px-4 py-3 font-semibold">PRODUCTO</th>
+            <th class="w-32 px-4 py-3 text-right font-semibold">PRECIO</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (productos().length === 0) {
+            <tr>
+              <td colspan="3" class="py-8 text-center text-slate-400">
+                Este grupo todavía no tiene productos asignados.
+              </td>
+            </tr>
+          } @else {
+            @for (fila of productos(); track fila.idProducto) {
+              <tr class="border-b border-slate-100 last:border-0 dark:border-slate-800">
+                <td class="whitespace-nowrap px-4 py-2.5 font-semibold text-slate-800 dark:text-slate-200">{{ fila.codigo }}</td>
+                <td class="px-4 py-2.5 text-slate-600 dark:text-slate-300">{{ fila.producto }}</td>
+                <td class="whitespace-nowrap px-4 py-2.5 text-right tabular-nums text-slate-600 dark:text-slate-300">
+                  S/ {{ fila.precioUnitario | number: '1.2-2' }}
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</app-modal>

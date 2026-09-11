@@ -1,0 +1,212 @@
+<app-modal
+  [abierto]="abierto()"
+  [titulo]="vista() === 'agregar' ? config().tituloAgregar : config().titulo"
+  [ancho]="config().ancho ?? '4xl'"
+  [hintF2]="true"
+  (cerrar)="cerrar.emit()"
+>
+  <div class="px-5 py-4">
+    @if (vista() === 'buscar') {
+      <!-- Filtros autocompletados + acciones -->
+      <div class="grid items-end gap-2.5" [style.grid-template-columns]="columnasFiltro()">
+        @for (filtro of config().filtros; track filtro.campo) {
+          <div class="min-w-0">
+            <app-autocomplete
+              [idControl]="'filtro-' + filtro.campo"
+              [etiqueta]="filtro.etiqueta"
+              [placeholder]="filtro.placeholder ?? 'Ingrese ' + filtro.etiqueta.toLowerCase()"
+              [formControl]="control(formularioFiltro(), filtro.campo)"
+              [opciones]="campoActivo() === filtro.campo ? opcionesSugeridas() : []"
+              [buscando]="campoActivo() === filtro.campo && buscandoSugerencias()"
+              mensajeVacio="Sin coincidencias."
+              (buscar)="onBuscarSugerencias(filtro.campo, $event)"
+              (seleccionar)="onElegirSugerencia(filtro.campo, $event)"
+            />
+          </div>
+        }
+        <button
+          type="button"
+          appEnterPrimary
+          (click)="aplicarFiltros()"
+          [disabled]="cargando()"
+          class="inline-flex h-9 items-center gap-1.5 whitespace-nowrap rounded bg-primary px-3.5 text-xs font-semibold text-white transition hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          @if (cargando()) {
+            <ng-icon name="lucideLoaderCircle" size="0.875rem" class="animate-spin" />
+          } @else {
+            <ng-icon name="lucideSearch" size="0.875rem" />
+          }
+          Buscar
+        </button>
+        <button
+          type="button"
+          (click)="irAAgregar()"
+          class="inline-flex h-9 items-center gap-1.5 whitespace-nowrap rounded border border-slate-300 bg-white px-3.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+        >
+          <ng-icon name="lucidePlus" size="0.875rem" /> Agregar
+        </button>
+      </div>
+
+      <p class="mt-2 text-[11px] text-slate-400">
+        <span class="font-semibold text-slate-500 dark:text-slate-400">Teclado:</span>
+        Enter busca · ↑ ↓ recorren los resultados · Inicio/Fin van a los extremos ·
+        Enter selecciona la fila marcada · F2 cierra
+      </p>
+
+      @if (errorBusqueda(); as mensaje) {
+        <p role="alert" class="mt-2 text-xs font-semibold text-error">{{ mensaje }}</p>
+      }
+
+      @if (mensajeExito(); as mensaje) {
+        <p role="status" class="mt-2 text-xs font-semibold text-success">{{ mensaje }}</p>
+      }
+
+      <!-- Resultados: listbox navegable con teclado -->
+      <div
+        #lista
+        role="listbox"
+        tabindex="0"
+        [attr.aria-label]="config().titulo"
+        [attr.aria-activedescendant]="indiceActivo() >= 0 ? idFila(indiceActivo()) : null"
+        (keydown)="onKeydownLista($event)"
+        class="mt-2 max-h-[320px] overflow-y-auto rounded-md border border-slate-200 outline-none focus:ring-2 focus:ring-primary dark:border-slate-800"
+      >
+        <table class="w-full min-w-[340px] text-left text-xs">
+          <thead>
+            <tr class="border-b border-slate-200 bg-slate-50 text-slate-500 dark:border-slate-800 dark:bg-slate-800/50">
+              @for (columna of config().columnas; track columna.campo) {
+                <th class="sticky top-0 whitespace-nowrap bg-slate-50 px-3 py-2.5 font-semibold dark:bg-slate-800/50">
+                  {{ columna.titulo }}
+                </th>
+              }
+              <th class="sticky top-0 whitespace-nowrap bg-slate-50 px-3 py-2.5 text-right font-semibold dark:bg-slate-800/50">
+                ACCIÓN
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (cargando()) {
+              <tr>
+                <td [attr.colspan]="config().columnas.length + 1" class="py-6 text-center text-slate-400">
+                  Cargando...
+                </td>
+              </tr>
+            } @else if (!busquedaRealizada()) {
+              <tr>
+                <td [attr.colspan]="config().columnas.length + 1" class="py-8 text-center text-slate-400">
+                  Pulsa <span class="font-semibold text-slate-500">Buscar</span> para listar,
+                  o escribe en los filtros para acotar.
+                </td>
+              </tr>
+            } @else if (filas().length === 0) {
+              <tr>
+                <td [attr.colspan]="config().columnas.length + 1" class="py-6 text-center text-slate-400">
+                  {{ config().mensajeVacio ?? 'Sin registros.' }}
+                </td>
+              </tr>
+            } @else {
+              @for (fila of filas(); track $index; let i = $index) {
+                <tr
+                  [id]="idFila(i)"
+                  role="option"
+                  [attr.aria-selected]="indiceActivo() === i"
+                  (mouseenter)="activar(i)"
+                  (click)="elegir(fila)"
+                  [class.bg-primary]="indiceActivo() === i"
+                  class="cursor-pointer border-b border-slate-100 last:border-0 dark:border-slate-800/50"
+                >
+                  @for (columna of config().columnas; track columna.campo; let primera = $first) {
+                    <td
+                      class="whitespace-nowrap px-3 py-2"
+                      [class.text-white]="indiceActivo() === i"
+                      [class.font-semibold]="indiceActivo() === i && primera"
+                      [class.font-medium]="indiceActivo() !== i && primera"
+                      [class.text-slate-700]="indiceActivo() !== i && primera"
+                      [class.dark:text-slate-200]="indiceActivo() !== i && primera"
+                      [class.text-slate-500]="indiceActivo() !== i && !primera"
+                    >
+                      {{ fila[columna.campo] }}
+                    </td>
+                  }
+                  <td class="whitespace-nowrap px-3 py-2 text-right">
+                    <button
+                      type="button"
+                      tabindex="-1"
+                      (click)="elegir(fila); $event.stopPropagation()"
+                      [class.bg-white]="indiceActivo() === i"
+                      [class.text-primary]="indiceActivo() === i"
+                      [class.bg-primary]="indiceActivo() !== i"
+                      [class.text-white]="indiceActivo() !== i"
+                      class="inline-flex items-center gap-1 whitespace-nowrap rounded px-2.5 py-1 text-[11px] font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                    >
+                      <ng-icon name="lucideCheck" size="0.75rem" /> Seleccionar
+                    </button>
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <!-- Vista Agregar -->
+      <div class="flex flex-col gap-3">
+        @for (campo of config().campos; track campo.campo) {
+          <div>
+            <label
+              [for]="'nuevo-' + campo.campo"
+              class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400"
+            >
+              {{ campo.etiqueta }}
+              @if (campo.requerido) {
+                <span class="text-error">*</span>
+              }
+              @if (campo.campo === config().clave && cargandoCodigo()) {
+                <span class="ml-1 font-normal normal-case text-slate-400">obteniendo código...</span>
+              }
+            </label>
+            <input
+              [id]="'nuevo-' + campo.campo"
+              type="text"
+              [formControl]="control(formularioAlta(), campo.campo)"
+              [placeholder]="campo.placeholder ?? 'Ingrese ' + campo.etiqueta.toLowerCase()"
+              class="h-9 w-full rounded border border-slate-300 px-3 text-sm uppercase outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+            />
+            @if (invalido(formularioAlta(), campo.campo)) {
+              <p class="mt-1 text-xs text-red-600 dark:text-red-400">
+                Ingrese {{ campo.etiqueta.toLowerCase() }}.
+              </p>
+            }
+          </div>
+        }
+      </div>
+
+      @if (errorAlta(); as mensaje) {
+        <p role="alert" class="mt-3 text-xs font-semibold text-error">{{ mensaje }}</p>
+      }
+
+      <div class="mt-5 flex justify-end gap-2.5 border-t border-slate-200 pt-4 dark:border-slate-800">
+        <button
+          type="button"
+          (click)="volverABuscar()"
+          class="inline-flex h-10 items-center justify-center gap-2 whitespace-nowrap rounded-md border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          appEnterPrimary
+          (click)="guardarNuevo()"
+          [disabled]="guardando()"
+          class="inline-flex h-10 items-center justify-center gap-2 whitespace-nowrap rounded-md bg-primary px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          @if (guardando()) {
+            <ng-icon name="lucideLoaderCircle" size="1rem" class="animate-spin" /> Guardando...
+          } @else {
+            <ng-icon name="lucideSave" size="1rem" /> Guardar
+          }
+        </button>
+      </div>
+    }
+  </div>
+</app-modal>

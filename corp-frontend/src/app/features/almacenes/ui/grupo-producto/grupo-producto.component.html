@@ -1,0 +1,15 @@
+<section class="flex h-full min-h-0 flex-col gap-3 bg-slate-50 py-1 dark:bg-slate-950">
+  <div class="shrink-0 px-4 max-[576px]:px-2">
+    <app-tabs [tabs]="tabs()" [(activo)]="activa" />
+  </div>
+
+  @if (activa() === 'productos') {
+    <div role="tabpanel" id="panel-productos" aria-labelledby="tab-productos" class="flex-1 min-h-0 overflow-hidden">
+      <app-grupo-productos-tab class="block h-full min-h-0" />
+    </div>
+  } @else {
+    <div role="tabpanel" id="panel-grupos" aria-labelledby="tab-grupos" class="flex-1 min-h-0 overflow-hidden">
+      <app-grupos-tab class="block h-full min-h-0" />
+    </div>
+  }
+</section>

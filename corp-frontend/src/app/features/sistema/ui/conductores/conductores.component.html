@@ -1,0 +1,176 @@
+<section class="flex h-full min-h-0 flex-col gap-3 bg-slate-50 px-4 py-1 dark:bg-slate-950 max-[576px]:px-2">
+
+  <div
+    appEnterNavigate
+    class="flex shrink-0 flex-wrap items-end gap-3.5 rounded-sm border border-slate-200 bg-white px-5 py-4 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+  >
+    <div class="min-w-[220px] flex-1">
+      <label for="buscar-conductor" class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+        Buscar
+      </label>
+      <div class="relative">
+        <input
+          id="buscar-conductor"
+          type="text"
+          [value]="store.texto()"
+          (input)="cambiarTexto($event)"
+          placeholder="NOMBRE, DOCUMENTO, LICENCIA O PLACA"
+          class="h-[42px] w-full rounded-sm border-0 bg-white px-3.5 pr-10 text-sm text-slate-900 shadow-sm outline outline-1 outline-slate-300 transition placeholder:text-slate-400 focus:outline-2 focus:outline-primary dark:bg-slate-800 dark:text-white dark:outline-slate-700"
+        />
+        <ng-icon
+          name="lucideSearch"
+          size="1rem"
+          class="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400"
+        />
+      </div>
+    </div>
+
+    <div class="flex shrink-0 items-end gap-2.5">
+      <button
+        type="button"
+        (click)="store.limpiar()"
+        [disabled]="!store.hayFiltro()"
+        class="inline-flex h-[42px] items-center gap-2 whitespace-nowrap rounded-sm border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+      >
+        <ng-icon name="lucideEraser" size="1rem" />
+        Limpiar
+      </button>
+      <button
+        type="button"
+        (click)="agregarConductor()"
+        class="inline-flex h-[42px] items-center gap-2 whitespace-nowrap rounded-sm bg-primary px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+      >
+        <ng-icon name="lucideUserPlus" size="1rem" />
+        Agregar conductor
+      </button>
+      <button
+        type="button"
+        (click)="agregarVehiculo()"
+        class="inline-flex h-[42px] items-center gap-2 whitespace-nowrap rounded-sm border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+      >
+        <ng-icon name="lucideCar" size="1rem" />
+        Agregar vehículo
+      </button>
+    </div>
+  </div>
+
+  <div class="grid flex-1 min-h-0 grid-cols-1 gap-3 lg:grid-cols-3">
+    <div class="flex flex-1 min-h-0 flex-col overflow-hidden rounded-sm border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900 lg:col-span-2">
+      <div class="shrink-0 flex items-center justify-between gap-3 border-b border-slate-200 px-5 py-3 dark:border-slate-800">
+        <h2 class="text-sm font-bold uppercase tracking-wide text-slate-700 dark:text-slate-200">Conductores</h2>
+        <span class="text-xs text-slate-500">
+          <span class="font-semibold tabular-nums">{{ store.conductoresFiltrados().length }}</span>
+          de <span class="font-semibold tabular-nums">{{ store.totalConductores() }}</span>
+        </span>
+      </div>
+
+      <div class="flex-1 min-h-0 overflow-auto scroll-marca">
+        <table class="w-full min-w-[640px] text-left text-xs">
+          <thead class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-800">
+            <tr class="border-b border-slate-200 bg-slate-50 text-slate-500 dark:border-slate-800 dark:bg-slate-800">
+              <th class="px-4 py-3 font-semibold">NOMBRE</th>
+              <th class="w-36 whitespace-nowrap px-4 py-3 font-semibold">N.° DOC</th>
+              <th class="w-28 whitespace-nowrap px-4 py-3 font-semibold">TIPO DOC</th>
+              <th class="w-40 whitespace-nowrap px-4 py-3 font-semibold">LICENCIA</th>
+              <th class="w-28 whitespace-nowrap px-4 py-3 text-right font-semibold">ACCIONES</th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (store.cargando()) {
+              <tr><td colspan="5" class="py-10 text-center text-slate-400">Cargando conductores...</td></tr>
+            } @else if (store.error()) {
+              <tr><td colspan="5" class="py-10 text-center text-error">No se pudieron cargar los conductores.</td></tr>
+            } @else if (store.conductoresFiltrados().length === 0) {
+              <tr>
+                <td colspan="5" class="py-10 text-center text-slate-400">
+                  @if (store.hayFiltro()) { Ningún conductor coincide con la búsqueda. } @else { Sin conductores registrados. }
+                </td>
+              </tr>
+            } @else {
+              @for (fila of store.conductoresFiltrados(); track fila.idConductor) {
+                <tr class="border-b border-slate-100 transition last:border-0 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800/50">
+                  <td class="px-4 py-3 font-semibold text-slate-800 dark:text-slate-200">{{ fila.nombre }}</td>
+                  <td class="whitespace-nowrap px-4 py-3 tabular-nums text-slate-600 dark:text-slate-300">{{ fila.numeroDocumento }}</td>
+                  <td class="whitespace-nowrap px-4 py-3 text-slate-500">{{ fila.tipoDocumento }}</td>
+                  <td class="whitespace-nowrap px-4 py-3 text-slate-600 dark:text-slate-300">{{ fila.licencia }}</td>
+                  <td class="whitespace-nowrap px-4 py-3">
+                    <div class="flex items-center justify-end gap-2">
+                      <app-boton-accion
+                        icono="lucideSquarePen"
+                        [etiqueta]="'Editar a ' + fila.nombre"
+                        (accion)="editarConductor(fila)"
+                      />
+                      <app-boton-accion
+                        icono="lucideTrash2"
+                        [etiqueta]="'Eliminar a ' + fila.nombre"
+                        tono="peligro"
+                        (accion)="eliminarConductor(fila)"
+                      />
+                    </div>
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="flex flex-1 min-h-0 flex-col overflow-hidden rounded-sm border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900 lg:col-span-1">
+      <div class="shrink-0 flex items-center justify-between gap-3 border-b border-slate-200 px-5 py-3 dark:border-slate-800">
+        <h2 class="text-sm font-bold uppercase tracking-wide text-slate-700 dark:text-slate-200">Vehículos</h2>
+        <span class="text-xs text-slate-500">
+          <span class="font-semibold tabular-nums">{{ store.vehiculosFiltrados().length }}</span>
+          de <span class="font-semibold tabular-nums">{{ store.totalVehiculos() }}</span>
+        </span>
+      </div>
+
+      <div class="flex-1 min-h-0 overflow-auto scroll-marca">
+        <table class="w-full min-w-[360px] text-left text-xs">
+          <thead class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-800">
+            <tr class="border-b border-slate-200 bg-slate-50 text-slate-500 dark:border-slate-800 dark:bg-slate-800">
+              <th class="w-32 px-4 py-3 font-semibold">PLACA</th>
+              <th class="px-4 py-3 font-semibold">VEHÍCULO</th>
+              <th class="w-28 whitespace-nowrap px-4 py-3 text-right font-semibold">ACCIONES</th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (store.cargando()) {
+              <tr><td colspan="3" class="py-10 text-center text-slate-400">Cargando vehículos...</td></tr>
+            } @else if (store.error()) {
+              <tr><td colspan="3" class="py-10 text-center text-error">No se pudieron cargar los vehículos.</td></tr>
+            } @else if (store.vehiculosFiltrados().length === 0) {
+              <tr>
+                <td colspan="3" class="py-10 text-center text-slate-400">
+                  @if (store.hayFiltro()) { Ningún vehículo coincide con la búsqueda. } @else { Sin vehículos registrados. }
+                </td>
+              </tr>
+            } @else {
+              @for (fila of store.vehiculosFiltrados(); track fila.idVehiculo) {
+                <tr class="border-b border-slate-100 transition last:border-0 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800/50">
+                  <td class="whitespace-nowrap px-4 py-3 font-bold tabular-nums text-slate-800 dark:text-slate-200">{{ fila.placa }}</td>
+                  <td class="px-4 py-3 text-slate-600 dark:text-slate-300">{{ fila.nombre }}</td>
+                  <td class="whitespace-nowrap px-4 py-3">
+                    <div class="flex items-center justify-end gap-2">
+                      <app-boton-accion
+                        icono="lucideSquarePen"
+                        [etiqueta]="'Editar el vehículo ' + fila.placa"
+                        (accion)="editarVehiculo(fila)"
+                      />
+                      <app-boton-accion
+                        icono="lucideTrash2"
+                        [etiqueta]="'Eliminar el vehículo ' + fila.placa"
+                        tono="peligro"
+                        (accion)="eliminarVehiculo(fila)"
+                      />
+                    </div>
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>

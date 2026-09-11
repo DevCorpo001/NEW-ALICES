@@ -1,3 +1,112 @@
-/* You can add global styles to this file, and also import other style files */
-
 @import 'tailwindcss';
+/* Posicionamiento de los paneles del CDK Overlay (autocomplete, popovers). */
+@import '@angular/cdk/overlay-prebuilt.css';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-primary: #ed1b24;
+  --color-primary-hover: #d40000;
+  --color-primary-light: #fde8e8;
+
+  --color-surface: #f0f2f8;
+  --color-surface-card: #ffffff;
+
+  --color-success: #10b981;
+  --color-success-hover: #059669;
+  --color-success-light: #ecfdf5;
+
+  --color-error: #dc2626;
+
+  --font-sans: 'Inter', system-ui, sans-serif;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+/* El componente activo en router-outlet debe ocupar todo el alto disponible del main */
+main > *:not(router-outlet) {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Estilo mejorado para tablas: cabecera con contraste, filas alternadas y hover de marca */
+table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+tbody tr:hover {
+  background-color: rgba(237, 27, 36, 0.035) !important;
+}
+:where(.dark) tbody tr:hover {
+  background-color: rgba(237, 27, 36, 0.075) !important;
+}
+
+/* Scrollbar en el tono de marca; para cualquier zona con scroll propio. */
+.scroll-marca {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(237, 27, 36, 0.55) transparent;
+}
+.scroll-marca::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.scroll-marca::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scroll-marca::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+  background-color: rgba(237, 27, 36, 0.55);
+}
+.scroll-marca::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(212, 0, 0, 0.75);
+}
+
+/* Ticker inferior: la pista empieza fuera por la derecha y cruza pantalla + su propio ancho. */
+.marquee-track {
+  position: absolute;
+  left: 100%;
+  animation: marquee-scroll var(--marquee-duracion, 30s) linear infinite;
+}
+@keyframes marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-100vw - 100%));
+  }
+}
+/* Sin animacion la pista quedaria fuera de pantalla: se devuelve al flujo para que se lea. */
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    position: static;
+    animation: none;
+  }
+}
+
+/* SweetAlert2 — tema ALICES */
+.alices-confirm-popup {
+  border-radius: 14px;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+.alices-confirm-title {
+  font-family: 'Inter', system-ui, sans-serif;
+  color: #0f172a;
+  font-size: 1.25rem;
+}
+.alices-confirm-html {
+  font-family: 'Inter', system-ui, sans-serif;
+  color: #475569;
+}

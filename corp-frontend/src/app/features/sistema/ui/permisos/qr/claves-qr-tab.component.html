@@ -1,0 +1,57 @@
+<div class="flex h-full min-h-0 flex-col gap-3 px-4 max-[576px]:px-2">
+  <div class="shrink-0 rounded-sm border border-slate-200 bg-white px-5 py-3.5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <p class="text-xs text-slate-500 dark:text-slate-400">
+      Una clave QR por rol, para escanear en caja en lugar de teclear la contraseña.
+      <span class="font-semibold tabular-nums text-slate-700 dark:text-slate-200">{{ store.qrActivas() }}</span>
+      activas de
+      <span class="font-semibold tabular-nums text-slate-700 dark:text-slate-200">{{ store.clavesQr().length }}</span>.
+    </p>
+  </div>
+
+  <div class="flex flex-1 min-h-0 flex-col overflow-hidden rounded-sm border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <div class="flex-1 min-h-0 overflow-auto scroll-marca">
+      <table class="w-full min-w-[440px] text-left text-xs">
+        <thead class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-800">
+          <tr class="border-b border-slate-200 bg-slate-50 text-slate-500 dark:border-slate-800 dark:bg-slate-800">
+            <th class="whitespace-nowrap px-4 py-3 font-semibold">ROL</th>
+            <th class="w-32 whitespace-nowrap px-4 py-3 font-semibold">ESTADO</th>
+            <th class="w-32 whitespace-nowrap px-4 py-3 text-right font-semibold">ACCIONES</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (store.cargando()) {
+            <tr><td colspan="3" class="py-10 text-center text-slate-400">Cargando claves QR...</td></tr>
+          } @else if (store.error()) {
+            <tr><td colspan="3" class="py-10 text-center text-error">No se pudieron cargar las claves QR.</td></tr>
+          } @else if (store.clavesQr().length === 0) {
+            <tr><td colspan="3" class="py-10 text-center text-slate-400">Sin claves QR registradas.</td></tr>
+          } @else {
+            @for (fila of store.clavesQr(); track fila.idClaveQr) {
+              <tr class="border-b border-slate-100 transition last:border-0 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800/50">
+                <td class="px-4 py-3 font-semibold text-slate-800 dark:text-slate-200">{{ fila.rol }}</td>
+                <td class="whitespace-nowrap px-4 py-3">
+                  <app-estado-chip [activo]="fila.estado === 'A'" />
+                </td>
+                <td class="whitespace-nowrap px-4 py-3">
+                  <div class="flex items-center justify-end gap-2">
+                    <app-boton-accion
+                      icono="lucidePrinter"
+                      [etiqueta]="'Imprimir el QR de ' + fila.rol"
+                      (accion)="imprimir(fila)"
+                    />
+                    <app-boton-accion
+                      icono="lucideArrowLeftRight"
+                      [etiqueta]="(fila.estado === 'A' ? 'Desactivar' : 'Activar') + ' el QR de ' + fila.rol"
+                      [tono]="fila.estado === 'A' ? 'peligro' : 'exito'"
+                      (accion)="store.alternarQr(fila.idClaveQr)"
+                    />
+                  </div>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,113 @@
+<app-modal [abierto]="abierto()" titulo="Canales" ancho="3xl" [hintF2]="true" (cerrar)="cerrar.emit()">
+  <div class="flex flex-col gap-3 p-5">
+    <div>
+      <button
+        type="button"
+        (click)="crear()"
+        [disabled]="editandoId() === 0"
+        class="inline-flex h-[42px] items-center gap-2 whitespace-nowrap rounded-sm bg-primary px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        <ng-icon name="lucidePlus" size="1rem" />
+        Crear canal
+      </button>
+    </div>
+
+    <div class="overflow-hidden rounded-sm border border-slate-200 dark:border-slate-800">
+      <table class="w-full text-left text-xs">
+        <thead>
+          <tr class="border-b border-slate-200 bg-slate-50 text-slate-500 dark:border-slate-800 dark:bg-slate-800/50">
+            <th class="w-14 px-4 py-3 font-semibold">ID</th>
+            <th class="w-56 px-4 py-3 font-semibold">NOMBRE</th>
+            <th class="px-4 py-3 font-semibold">DESCRIPCIÓN</th>
+            <th class="w-28 px-4 py-3 text-right font-semibold">ACCIONES</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (editandoId() === 0) {
+            <tr class="border-b border-slate-100 bg-primary-light/40 dark:border-slate-800">
+              <td class="px-4 py-2.5 text-slate-400">—</td>
+              <td class="px-4 py-2.5">
+                <input
+                  type="text"
+                  [value]="nombre()"
+                  (input)="cambiarNombre($event)"
+                  (keydown.enter)="confirmar()"
+                  (keydown.escape)="cancelar()"
+                  placeholder="NOMBRE DEL CANAL"
+                  aria-label="Nombre del canal"
+                  class="h-9 w-full rounded-sm border-0 bg-white px-3 text-sm text-slate-900 outline outline-1 outline-slate-300 transition focus:outline-2 focus:outline-primary dark:bg-slate-800 dark:text-white dark:outline-slate-700"
+                />
+              </td>
+              <td class="px-4 py-2.5">
+                <input
+                  type="text"
+                  [value]="descripcion()"
+                  (input)="cambiarDescripcion($event)"
+                  (keydown.enter)="confirmar()"
+                  (keydown.escape)="cancelar()"
+                  placeholder="PARA QUÉ SE USA"
+                  aria-label="Descripción del canal"
+                  class="h-9 w-full rounded-sm border-0 bg-white px-3 text-sm text-slate-900 outline outline-1 outline-slate-300 transition focus:outline-2 focus:outline-primary dark:bg-slate-800 dark:text-white dark:outline-slate-700"
+                />
+              </td>
+              <td class="px-4 py-2.5">
+                <div class="flex items-center justify-end gap-2">
+                  <app-boton-accion icono="lucideCheck" etiqueta="Guardar el canal nuevo" tono="exito" (accion)="confirmar()" />
+                  <app-boton-accion icono="lucideX" etiqueta="Cancelar el alta" (accion)="cancelar()" />
+                </div>
+              </td>
+            </tr>
+          }
+
+          @for (canal of canales(); track canal.idCanal) {
+            <tr class="border-b border-slate-100 transition last:border-0 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800/50">
+              <td class="px-4 py-3 tabular-nums text-slate-400">{{ canal.idCanal }}</td>
+              @if (editandoId() === canal.idCanal) {
+                <td class="px-4 py-2.5">
+                  <input
+                    type="text"
+                    [value]="nombre()"
+                    (input)="cambiarNombre($event)"
+                    (keydown.enter)="confirmar()"
+                    (keydown.escape)="cancelar()"
+                    aria-label="Nombre del canal"
+                    class="h-9 w-full rounded-sm border-0 bg-white px-3 text-sm text-slate-900 outline outline-1 outline-slate-300 transition focus:outline-2 focus:outline-primary dark:bg-slate-800 dark:text-white dark:outline-slate-700"
+                  />
+                </td>
+                <td class="px-4 py-2.5">
+                  <input
+                    type="text"
+                    [value]="descripcion()"
+                    (input)="cambiarDescripcion($event)"
+                    (keydown.enter)="confirmar()"
+                    (keydown.escape)="cancelar()"
+                    aria-label="Descripción del canal"
+                    class="h-9 w-full rounded-sm border-0 bg-white px-3 text-sm text-slate-900 outline outline-1 outline-slate-300 transition focus:outline-2 focus:outline-primary dark:bg-slate-800 dark:text-white dark:outline-slate-700"
+                  />
+                </td>
+                <td class="px-4 py-2.5">
+                  <div class="flex items-center justify-end gap-2">
+                    <app-boton-accion icono="lucideCheck" etiqueta="Guardar los cambios del canal" tono="exito" (accion)="confirmar()" />
+                    <app-boton-accion icono="lucideX" etiqueta="Cancelar la edición" (accion)="cancelar()" />
+                  </div>
+                </td>
+              } @else {
+                <td class="px-4 py-3 font-semibold text-slate-800 dark:text-slate-200">{{ canal.nombre }}</td>
+                <td class="px-4 py-3 text-slate-500 dark:text-slate-400">{{ canal.descripcion }}</td>
+                <td class="px-4 py-3">
+                  <div class="flex items-center justify-end">
+                    <app-boton-accion
+                      icono="lucideSquarePen"
+                      [etiqueta]="'Editar ' + canal.nombre"
+                      (accion)="editar(canal)"
+                    />
+                  </div>
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</app-modal>

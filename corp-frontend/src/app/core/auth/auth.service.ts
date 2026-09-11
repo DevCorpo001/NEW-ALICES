@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpBackend, HttpClient } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { catchError, Observable, of, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -7,6 +7,7 @@ import { LoginRequest, LoginResponse, SessionUser } from './auth.models';
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
+  private readonly sessionHttp = new HttpClient(inject(HttpBackend));
   private readonly session = signal<SessionUser | null>(null);
   private readonly checked = signal(false);
 
@@ -27,7 +28,7 @@ export class AuthService {
       return of(this.session());
     }
 
-    return this.http
+    return this.sessionHttp
       .get<SessionUser>(`${environment.apiBaseUrl}/autenticacion/me`, {
         withCredentials: true
       })

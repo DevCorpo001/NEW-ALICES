@@ -11,7 +11,7 @@ El skill del proyecto define stack, carpetas, diseño y prohibiciones:
 
 Este `FRONTEND.md` **complementa** el skill con reglas de UX de ALICES (sobre todo navegación por Enter). Si hay conflicto de arquitectura/estilos, manda el skill; si es flujo de teclado/foco, manda este archivo.
 
-Stack: **Angular** (standalone) + Tailwind (+ Spartan/ng según skill).
+Stack: **Angular** (standalone) + Tailwind + `@angular/cdk` (solo primitivas de comportamiento; ver skill).
 
 ---
 
@@ -57,7 +57,7 @@ Prioridad para decidir qué se activa al final del flujo Enter:
 
 ### 1.4 Aplicación técnica (directiva reutilizable)
 
-Usar la directiva de contenedor (cuando exista en `core/directives`):
+Usar la directiva de contenedor `appEnterNavigate` (en `shared/directives`):
 
 ```html
 <form appEnterNavigate (ngSubmit)="buscar()">
@@ -110,11 +110,14 @@ Seguir el skill `pos-frontend`:
 
 ```
 src/app/
-  core/                      # auth, interceptors, guards
-  shared/                    # UI/pipes/directivas reutilizables (enter-navigate, etc.)
+  core/                      # auth, http (interceptores), routing (guards), services
+  shared/
+    directives/              # enter-navigate, enter-primary
+    services/
+    ui/                      # componentes compartidos (autocomplete, modal, catálogo…)
   features/<feature>/
     data-access/             # HTTP, stores, modelos
-    ui/                      # presentación (preferir @Input sobre inyectar data-access)
+    ui/                      # presentación (preferir input() sobre inyectar data-access)
     feature-*.routes.ts
   layout/                    # shell, sidebar, topbar
   app.routes.ts
@@ -137,7 +140,7 @@ Al implementar **cualquier** vista o formulario en `corp-frontend`:
 
 1. Cargar el skill `pos-frontend` (Skill tool).
 2. Leer este archivo para UX Enter/foco.
-3. Respetar estructura `features/.../{data-access,ui}` y Tailwind/Spartan del skill.
+3. Respetar estructura `features/.../{data-access,ui}` y Tailwind/CDK del skill.
 4. Aplicar navegación Enter + autofocus del primer campo.
 5. Enter final → acción primaria (buscar/submit).
 6. No entregar pantallas solo usables con ratón/Tab si el flujo es de captura o filtros.

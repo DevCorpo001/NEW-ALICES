@@ -1,0 +1,105 @@
+<div class="rounded-sm border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+  <div class="mb-3.5 flex flex-wrap items-center justify-between gap-3">
+    <h3 class="text-sm font-bold uppercase tracking-wide text-slate-800 dark:text-white">Lista de Precios</h3>
+    <button
+      type="button"
+      (click)="agregar()"
+      class="inline-flex items-center gap-1.5 whitespace-nowrap rounded bg-success px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-success-hover"
+    >
+      <ng-icon name="lucidePlus" size="0.875rem" /> Agregar Precio
+    </button>
+  </div>
+
+  <!-- table-wrapper: scroll propio, no rompe el layout de la card -->
+  <div class="max-h-[300px] overflow-x-auto overflow-y-auto rounded-sm border border-slate-200 dark:border-slate-800">
+    <table class="w-full min-w-[420px] text-left text-xs">
+      <thead>
+        <tr class="border-b border-slate-200 bg-slate-50 text-slate-500 dark:border-slate-800 dark:bg-slate-800/50">
+          <th class="sticky top-0 whitespace-nowrap bg-slate-50 px-2 py-2.5 font-semibold dark:bg-slate-800/50">ACCIONES</th>
+          <th class="sticky top-0 whitespace-nowrap bg-slate-50 px-2 py-2.5 font-semibold dark:bg-slate-800/50">CANAL</th>
+          <th class="sticky top-0 whitespace-nowrap bg-slate-50 px-2 py-2.5 font-semibold dark:bg-slate-800/50">COSTEO</th>
+          <th class="sticky top-0 whitespace-nowrap bg-slate-50 px-2 py-2.5 font-semibold dark:bg-slate-800/50">UNITARIO</th>
+          <th class="sticky top-0 whitespace-nowrap bg-slate-50 px-2 py-2.5 font-semibold dark:bg-slate-800/50">FECHA MOD.</th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (filas().length === 0) {
+          <tr>
+            <td colspan="5" class="py-6 text-center text-slate-400">Sin precios registrados.</td>
+          </tr>
+        } @else {
+          @for (fila of filas(); track fila.precio.idPrecio) {
+            <tr class="border-b border-slate-100 last:border-0 dark:border-slate-800/50">
+              <td class="px-2 py-2">
+                <div class="flex gap-1.5">
+                  <button
+                    type="button"
+                    (click)="abrirDetalle(fila.precio)"
+                    title="Ver detalle"
+                    aria-label="Ver detalle del precio"
+                    class="flex h-7 w-7 items-center justify-center rounded bg-primary/10 text-primary transition hover:bg-primary hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                  >
+                    <ng-icon name="lucideEye" size="0.9375rem" />
+                  </button>
+                  <button
+                    type="button"
+                    (click)="abrirHistorial(fila.precio)"
+                    title="Historial de cambios"
+                    aria-label="Historial de cambios del precio"
+                    class="flex h-7 w-7 items-center justify-center rounded bg-slate-200 text-slate-700 transition hover:bg-slate-700 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:bg-slate-700 dark:text-slate-200"
+                  >
+                    <ng-icon name="lucideHistory" size="0.9375rem" />
+                  </button>
+                  <button
+                    type="button"
+                    (click)="verAlmacenes(fila.precio)"
+                    title="Ver almacenes"
+                    aria-label="Ver almacenes del precio"
+                    class="flex h-7 w-7 items-center justify-center rounded bg-slate-200 text-slate-700 transition hover:bg-slate-700 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:bg-slate-700 dark:text-slate-200"
+                  >
+                    <ng-icon name="lucideWarehouse" size="0.9375rem" />
+                  </button>
+                  <button
+                    type="button"
+                    (click)="eliminar(fila.precio)"
+                    title="Eliminar precio"
+                    aria-label="Eliminar precio"
+                    class="flex h-7 w-7 items-center justify-center rounded bg-error/10 text-error transition hover:bg-error hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error"
+                  >
+                    <ng-icon name="lucideTrash" size="0.9375rem" />
+                  </button>
+                </div>
+              </td>
+              <td class="whitespace-nowrap px-2 py-2 font-medium text-slate-700 dark:text-slate-200">{{ fila.precio.canal }}</td>
+              <td class="whitespace-nowrap px-2 py-2 tabular-nums text-slate-600 dark:text-slate-300">{{ fila.precio.precioCosto.toFixed(2) }}</td>
+              <td class="whitespace-nowrap px-2 py-2 tabular-nums text-slate-600 dark:text-slate-300">{{ fila.precio.precioUnitario.toFixed(2) }}</td>
+              <td class="whitespace-nowrap px-2 py-2 text-slate-400">{{ fila.fecha }}</td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<app-precio-detalle-modal
+  [abierto]="detalleAbierto()"
+  [precio]="filaEnEdicion()"
+  [usuarioActual]="usuario()"
+  (cerrar)="detalleAbierto.set(false)"
+  (guardar)="aplicarDetalle($event)"
+/>
+
+<app-historial-precios-modal
+  [abierto]="historialAbierto()"
+  [idPrecio]="precioDelHistorial()?.idPrecio ?? null"
+  [canal]="precioDelHistorial()?.canal ?? null"
+  (cerrar)="cerrarHistorial()"
+/>
+
+<app-almacenes-stock-modal
+  [abierto]="almacenesAbierto()"
+  [idPrecio]="precioDeAlmacenes()?.idPrecio ?? null"
+  [canal]="precioDeAlmacenes()?.canal ?? null"
+  (cerrar)="cerrarAlmacenes()"
+/>
