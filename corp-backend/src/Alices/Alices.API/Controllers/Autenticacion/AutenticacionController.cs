@@ -1,8 +1,11 @@
+using Alices.API.Authentication;
 using Alices.Application.Autenticacion.IniciarSesion;
 using System.Security.Claims;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Options;
 
 namespace Alices.API.Controllers.Autenticacion;
 
@@ -11,14 +14,17 @@ namespace Alices.API.Controllers.Autenticacion;
 public sealed class AutenticacionController : ControllerBase
 {
     private readonly ISender _sender;
+    private readonly AuthCookieOptions _cookieOptions;
 
-    public AutenticacionController(ISender sender)
+    public AutenticacionController(ISender sender, IOptions<AuthCookieOptions> cookieOptions)
     {
         _sender = sender;
+        _cookieOptions = cookieOptions.Value;
     }
 
     [HttpPost("login")]
     [AllowAnonymous]
+    [EnableRateLimiting("login")]
     public async Task<IActionResult> Login(
         [FromBody] LoginRequest request,
         CancellationToken cancellationToken)
@@ -62,6 +68,7 @@ public sealed class AutenticacionController : ControllerBase
         var usuario = User.FindFirst("usuario")?.Value;
         var rolNombre = User.FindFirst("rol_nombre")?.Value;
         var tiendaId = User.FindFirst("tienda_id")?.Value;
+        var rutaVista = User.FindFirst("ruta_vista")?.Value;
 
         if (string.IsNullOrWhiteSpace(usuarioId)
             || string.IsNullOrWhiteSpace(rolId)
@@ -81,7 +88,7 @@ public sealed class AutenticacionController : ControllerBase
             rolCodigo,
             rolNombre,
             parsedTiendaId,
-            null,
+            rutaVista,
             null,
             null));
     }
@@ -99,8 +106,8 @@ public sealed class AutenticacionController : ControllerBase
         return new CookieOptions
         {
             HttpOnly = true,
-            Secure = Request.IsHttps,
-            SameSite = SameSiteMode.Lax,
+            Secure = _cookieOptions.Secure,
+            SameSite = _cookieOptions.SameSite,
             IsEssential = true,
             Expires = expires
         };

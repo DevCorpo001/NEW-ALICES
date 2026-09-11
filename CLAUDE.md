@@ -59,3 +59,7 @@ npm start                 # http://localhost:4200, con proxy a la API
   Es una BD **compartida** con el equipo: no ejecutar DDL (crear/borrar tablas) contra ella.
 - Antes de dar por terminado un cambio en el backend, compilar:
   `dotnet build corp-backend/src/Alices/Alices.API/Alices.API.csproj`
+
+# When done
+
+When the task is completed, respond with: "Listo precioso!!!"

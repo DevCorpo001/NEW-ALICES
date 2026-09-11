@@ -1,4 +1,5 @@
 using Alices.Application.Abstractions.Behaviors;
+using Alices.Domain.Usuarios;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -16,6 +17,8 @@ public static class DependencyInjection
         });
 
         services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
+
+        services.AddTransient<PoliticaAccesoUsuario>();
 
         return services;
     }
