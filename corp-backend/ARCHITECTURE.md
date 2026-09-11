@@ -4,6 +4,11 @@ Documento de referencia obligatoria para todo desarrollo en `corp-backend`.
 Basado en el proyecto de referencia `CLEAN ARCHITECTURE/`.
 Cualquier feature, fix o refactor **debe** respetar esta estructura y estos patrones.
 
+> **Contexto que condiciona todo lo demás**: ALICES reemplaza gradualmente un sistema legacy
+> que sigue en producción sobre la misma base de datos. Antes de modelar cualquier cosa que
+> toque datos existentes, leer **§14 — Convivencia con el sistema legacy**; sus reglas
+> prevalecen sobre los patrones generales. Para autenticación, ver **`AUTENTICACION.md`**.
+
 Target: **.NET 10** (`net10.0`). Alinear paquetes NuGet a majors estables de net10 (EF Core 10.x, Microsoft.Data.SqlClient 6.x, etc.).
 
 ---
@@ -131,7 +136,49 @@ Reglas:
 - Con comportamiento: operadores, `Zero()`, `IsZero()` (ej. `Moneda`).
 - Enumeration-like: record con instancias estáticas + `FromCodigo(...)`.
 
-### 2.4 Errores y repositorios
+### 2.4 Cuándo NO crear un agregado
+
+Antes de crear un agregado, tres preguntas. Si alguna falla, la respuesta no es un agregado.
+
+**1. ¿Somos dueños de los datos?**
+Si otro sistema escribe esa tabla, **no puede haber agregado**: un agregado garantiza
+invariantes, y no se puede garantizar nada sobre datos que otro proceso modifica. Se lee con
+Dapper y las reglas van en un servicio de dominio. Ver §14.
+
+**2. ¿Tiene identidad y ciclo de vida propios?**
+Si no, es un **value object** (si es un valor) o un **servicio de dominio** (si es una regla).
+
+**3. ¿Protege alguna invariante real?**
+Una clase con solo propiedades y getters es un DTO disfrazado (modelo anémico). Si la regla
+que importa vive fuera de la clase, el agregado no está haciendo su trabajo.
+
+### 2.5 Servicios de dominio
+
+Reglas de negocio sin identidad ni persistencia. Clase concreta, sin interfaz, registrada a
+mano en `AddApplication()`. Reciben los datos que necesitan como parámetros y devuelven
+`Result`.
+
+```csharp
+public sealed class PoliticaAccesoUsuario
+{
+    public Result Evaluar(bool usuarioActivo, string rolCodigo, TimeOnly horaLocal, ...)
+}
+```
+
+Es la figura correcta cuando hay una regla de negocio pero no un agregado que la aloje —
+típicamente porque los datos son de un sistema externo (§14).
+
+### 2.6 Eventos de dominio
+
+La infraestructura existe (`Entity.RaiseDomainEvent`, publicación en `SaveChangesAsync`) y
+**debe usarse**: todo factory de agregado emite un evento, y todo efecto secundario
+(auditoría, correo, notificación) se implementa como `INotificationHandler`, no como una
+llamada incrustada en el handler del caso de uso.
+
+Un efecto secundario escondido dentro de un stored procedure o de un handler es invisible,
+no testeable y no ampliable. Como evento, es las tres cosas.
+
+### 2.7 Errores y repositorios
 
 ```csharp
 public static class AlquilerErrors
@@ -289,12 +336,19 @@ services.AddSingleton<ISqlConnectionFactory>(_ => new SqlConnectionFactory(cs));
 
 ### 4.4 Autenticación y bootstrap
 
+> Estado real y detalle del login: **`AUTENTICACION.md`**. Para autenticación, ese documento
+> manda sobre este.
+
 - Los contratos de autenticación (`IPasswordHasher`, `IJwtTokenGenerator`) viven en `Application/Abstractions/Authentication/`.
 - Sus implementaciones viven en `Infrastructure/Authentication/`; el dominio no conoce JWT, BCrypt ni configuración.
-- `JwtBearer` se configura en API (composition root). Secret, issuer, audience y duración se leen de `Jwt:*` y no se duplican en handlers.
+- `JwtBearer` se configura en API (composition root). Secret, issuer, audience y duración se leen de `Jwt:*` mediante `JwtOptions` + `IOptions<T>` con `ValidateOnStart()` — **una sola lectura**, nunca `IConfiguration["Jwt:Secret"]` disperso.
+- Los flags de la cookie de sesión (`Secure`, `SameSite`) son configuración (`Auth:Cookie:*`), no se derivan de la petición: `Request.IsHttps` es `false` detrás de un proxy que termina TLS. Registrar `UseForwardedHeaders`.
+- Endpoints de autenticación anónimos deben tener rate limiting.
+- Los intentos de login fallidos se registran (usuario, IP, origen).
 - Un caso de uso de autenticación que solo consulta credenciales puede usar Dapper; no debe cargar el agregado con EF ni ejecutar `UnitOfWork` si no hay mutación.
 - El bootstrap de la aplicación (migraciones y seed idempotente) pertenece a API/Extensions y solo se ejecuta explícitamente en Development.
-- El seed usa factories del dominio y servicios definidos por Application cuando crea datos de dominio; nunca guarda hashes de contraseñas en texto plano.
+- **No sembrar datos que dupliquen un padrón que ya existe en otro sistema.** Un seed que crea usuarios en tablas propias mientras el login autentica contra tablas ajenas produce dos directorios de identidad que divergen (ver §14).
+- Ningún secreto real (connection strings con credenciales, `Jwt:Secret`) en `appsettings.json` ni `appsettings.Development.json` — ambos están trackeados. Van en `appsettings.*.Local.json` (gitignoreado) o variables de entorno.
 - Para sesiones web, el JWT se entrega mediante cookie HttpOnly, con SameSite y Secure configurables; nunca se expone en una respuesta accesible a JavaScript.
 - JwtBearer debe aceptar el token desde la cookie configurada y la API debe exponer operaciones explícitas para consultar la sesión y cerrarla.
 
@@ -377,6 +431,8 @@ HTTP → Controller
 
 ## 8. Checklist por agregado nuevo
 
+- [ ] **Pasar las tres preguntas de §2.4** — ¿somos dueños de los datos? ¿tiene identidad?
+      ¿protege invariantes? Si alguna falla, no es un agregado (§2.5 / §14)
 - [ ] Raíz `sealed class : Entity`, ctor privado + factory estático que emite evento
 - [ ] VOs como records; con validación → `Create` → `Result<T>`
 - [ ] `<Agregado>Errors` estático
@@ -385,10 +441,13 @@ HTTP → Controller
 - [ ] `Configuration` EF (tabla snake_case, OwnsOne/HasConversion, FKs)
 - [ ] Registrar repo + domain services en DI
 - [ ] Casos de uso Application (command/query según necesidad)
+- [ ] Verificar que no duplica un padrón que ya existe en el legacy (§14)
 
 ---
 
 ## 9. Orden de construcción (proyecto / feature grande)
+
+**Para features nuevas** (dominio propio, datos propios):
 
 1. Domain/Abstractions (si aún no existen)
 2. Agregado completo (raíz + VOs + errors + repo interface + events)
@@ -397,6 +456,9 @@ HTTP → Controller
 5. Infrastructure: DbContext, configs, repos, factory, DI
 6. Migraciones EF (`dotnet ef migrations add ... -p Infrastructure -s API`)
 7. Endpoint API + pruebas manuales/Swagger
+
+**Para migrar algo del legacy**: el orden es el inverso — ver §14. Modelar antes de entender
+el objeto legacy produce agregados que no corresponden a nada real.
 
 ---
 
@@ -437,3 +499,74 @@ Al implementar **cualquier** pedido en este repo:
 5. Escrituras con EF + UnitOfWork; lecturas con Dapper.
 6. No inventar atajos que rompan Clean Architecture “por rapidez”.
 7. Si el caso de uso no encaja, proponer extensión del patrón — no un bypass.
+8. Antes de crear un agregado, pasar las tres preguntas de §2.4.
+9. Si el dato viene de una tabla del sistema legacy, leer §14 antes de modelar.
+
+---
+
+## 13. Lógica en base de datos vs. lógica en el dominio
+
+SQL **no está prohibido** — §3.3 exige Dapper + SQL crudo para todas las lecturas. Lo que no
+debe vivir en SQL es la **decisión de negocio**.
+
+### El criterio
+
+> Si esta regla cambia, ¿quién se entera y cómo pruebo que sigue funcionando?
+
+| | En stored procedure | En el dominio |
+|---|---|---|
+| Historial | Ninguno | Git, con autor y motivo |
+| Revisión | Nadie la revisa | Pull request |
+| Pruebas | Requiere una base de datos | Test unitario, sin BD |
+| Despliegue | Separado; puede desincronizarse | Atómico con la app |
+| Descubribilidad | Hay que saber que existe | Se ve al leer el caso de uso |
+
+### La división
+
+| Va en SQL | Va en el dominio |
+|---|---|
+| Buscar, filtrar, unir, agregar | Decidir si algo se permite o se rechaza |
+| Proyecciones de lectura | Invariantes y validaciones de negocio |
+| Operaciones masivas donde mover datos sería absurdo | Cálculos con significado de negocio |
+| El límite de integración con un sistema legacy (§14) | Lo que le explicarías a alguien de negocio |
+
+**Regla corta**: SQL responde *"¿qué datos hay?"*. El dominio responde *"¿qué hacemos con
+ellos?"*.
+
+### Señales de que una regla está mal ubicada
+
+- Compara contra texto visible (`DESC_ROL = 'ADMINISTRADOR'`) en vez de un código estable.
+- Usa `GETDATE()` para decidir algo — reloj y zona horaria implícitos, no configurables.
+- Un `INSERT` de auditoría escondido dentro de un SP de consulta.
+- El SP devuelve columnas que nadie consume (p. ej. la contraseña).
+
+---
+
+## 14. Convivencia con el sistema legacy
+
+ALICES sustituye gradualmente un sistema en producción que sigue escribiendo sobre la misma
+base de datos. Eso impone reglas que **prevalecen sobre los patrones de las secciones
+anteriores**.
+
+### Reglas
+
+1. **Cambios en BD solo aditivos.** Columna nueva o SP nuevo. Nunca modificar ni reemplazar
+   objetos que el legacy usa.
+2. **No duplicar padrones.** Si el legacy es dueño de una entidad, ALICES **no** crea su
+   propia tabla para lo mismo. Dos directorios de la misma cosa divergen siempre.
+3. **Sin propiedad, sin agregado.** Datos que otro sistema escribe se leen con Dapper y sus
+   reglas van en un servicio de dominio (§2.5). No hay repositorio ni `IUnitOfWork`.
+4. **Descomponer, no envolver.** Un SP legacy suele mezclar consulta, decisión y efectos
+   secundarios. Poner una capa Clean Architecture encima sin separarlos no migra nada: solo
+   esconde el problema. Se extrae cada responsabilidad a su capa.
+5. **Scripts SQL versionados** en `sql/`, con comentario de propósito y de si ya se aplicaron.
+
+### Orden de construcción al migrar
+
+§9 (empezar por el dominio) aplica a features nuevas. **Al migrar legacy es al revés**:
+
+1. Leer el objeto legacy (SP, tabla, job) y entender qué hace *realmente*.
+2. Separar sus responsabilidades: consulta / decisión / efecto secundario.
+3. Recién ahí modelar, y solo lo que corresponda a datos propios.
+
+Modelar antes de entender es lo que produce agregados que no corresponden a nada.

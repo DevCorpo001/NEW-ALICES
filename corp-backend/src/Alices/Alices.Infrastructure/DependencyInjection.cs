@@ -6,6 +6,7 @@ using Alices.Infrastructure.Clock;
 using Alices.Infrastructure.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Alices.Infrastructure;
 
@@ -17,6 +18,13 @@ public static class DependencyInjection
     {
         services.AddTransient<IDateTimeProvider, DateTimeProvider>();
         services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
+
+        services.AddOptions<JwtOptions>()
+            .Bind(configuration.GetSection(JwtOptions.SectionName))
+            .Validate(
+                options => !string.IsNullOrWhiteSpace(options.Secret) && options.Secret.Length >= 32,
+                "Jwt:Secret es obligatorio y debe tener al menos 32 caracteres")
+            .ValidateOnStart();
 
         var connectionString = configuration.GetConnectionString("Database")
             ?? throw new ArgumentNullException(nameof(configuration), "ConnectionStrings:Database es obligatorio");

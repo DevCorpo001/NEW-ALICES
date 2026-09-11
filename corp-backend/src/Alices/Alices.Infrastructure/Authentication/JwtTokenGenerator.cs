@@ -2,18 +2,18 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Alices.Application.Abstractions.Authentication;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Alices.Infrastructure.Authentication;
 
 internal sealed class JwtTokenGenerator : IJwtTokenGenerator
 {
-    private readonly IConfiguration _configuration;
+    private readonly JwtOptions _options;
 
-    public JwtTokenGenerator(IConfiguration configuration)
+    public JwtTokenGenerator(IOptions<JwtOptions> options)
     {
-        _configuration = configuration;
+        _options = options.Value;
     }
 
     public AuthenticationToken Generate(
@@ -26,12 +26,7 @@ internal sealed class JwtTokenGenerator : IJwtTokenGenerator
         byte idTienda,
         string? rutaVista)
     {
-        var secret = _configuration["Jwt:Secret"]
-            ?? throw new InvalidOperationException("Jwt:Secret no está configurado");
-        var issuer = _configuration["Jwt:Issuer"] ?? "Alices";
-        var audience = _configuration["Jwt:Audience"] ?? "Alices";
-        var expirationHours = int.TryParse(_configuration["Jwt:ExpirationHours"], out var hours) ? hours : 8;
-        var expiresAtUtc = DateTime.UtcNow.AddHours(expirationHours);
+        var expiresAtUtc = DateTime.UtcNow.AddHours(_options.ExpirationHours);
 
         var claims = new List<Claim>
         {
@@ -49,12 +44,12 @@ internal sealed class JwtTokenGenerator : IJwtTokenGenerator
             claims.Add(new Claim("ruta_vista", rutaVista));
         }
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Secret));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
-            issuer,
-            audience,
+            _options.Issuer,
+            _options.Audience,
             claims,
             expires: expiresAtUtc,
             signingCredentials: credentials);

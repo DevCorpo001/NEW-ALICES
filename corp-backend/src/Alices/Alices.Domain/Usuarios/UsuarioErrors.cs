@@ -8,4 +8,5 @@ public static class UsuarioErrors
     public static readonly Error CredencialesInvalidas = new("Usuario.CredencialesInvalidas", "Correo o contraseña incorrectos");
     public static readonly Error Inactivo = new("Usuario.Inactivo", "El usuario no está activo");
     public static readonly Error EmailDuplicado = new("Usuario.EmailDuplicado", "Ya existe un usuario con ese correo");
+    public static readonly Error FueraDeHorario = new("Usuario.FueraDeHorario", "El usuario no puede iniciar sesión fuera del horario permitido");
 }
