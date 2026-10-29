@@ -1,0 +1,119 @@
+<div
+  class="fixed inset-0 z-40 bg-slate-950/60 backdrop-blur-sm transition-opacity duration-200"
+  [class.opacity-100]="isOpen()"
+  [class.opacity-0]="!isOpen()"
+  [class.pointer-events-none]="!isOpen()"
+  [attr.aria-hidden]="!isOpen()"
+  (click)="closed.emit()"
+></div>
+
+<aside
+  class="fixed inset-y-0 left-0 z-50 flex w-72 flex-col bg-slate-900 transition-transform duration-200"
+  [class.translate-x-0]="isOpen()"
+  [class.-translate-x-full]="!isOpen()"
+  aria-label="Menú de navegación"
+>
+  <header class="flex h-16 shrink-0 items-center gap-3 border-b border-white/10 px-4">
+    <a
+      routerLink="/"
+      (click)="closed.emit()"
+      title="Ir al inicio"
+      class="flex min-w-0 items-center gap-3 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+    >
+      <span
+        class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white p-1"
+      >
+        <img
+          src="/images/logo_sin_slogan.png"
+          alt="Alice's"
+          class="h-full w-full object-contain"
+        />
+      </span>
+      <span class="min-w-0 leading-tight">
+        <span class="block text-xl font-bold tracking-tight text-white">Alice's</span>
+      </span>
+    </a>
+
+    <button
+      #menuButton
+      type="button"
+      (click)="closed.emit()"
+      aria-label="Cerrar menú"
+      title="Cerrar menú"
+      class="ml-auto rounded-lg p-2 text-slate-300 transition hover:bg-slate-800 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+    >
+      <ng-icon name="lucideMenu" size="1.25rem" />
+    </button>
+  </header>
+
+  <nav
+    class="scroll-marca flex-1 overflow-y-auto overscroll-contain px-3 py-4"
+    aria-label="Menú principal"
+  >
+    <ul class="space-y-1">
+      @for (item of navItems; track item.route ?? item.label) {
+        @if (item.children?.length) {
+          <li>
+            <button
+              type="button"
+              (click)="onModuleClick(item.route!)"
+              [attr.aria-expanded]="isExpanded(item.route!)"
+              [title]="item.label"
+              class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-300 transition hover:bg-slate-800 hover:text-white hover:ring-2 hover:ring-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              [class.bg-primary]="isActive(item)"
+              [class.text-white]="isActive(item)"
+            >
+              <ng-icon name="{{ item.icon }}" size="1.25rem" aria-hidden="true" />
+              <span class="flex-1 truncate text-left">{{ item.label }}</span>
+              <ng-icon
+                name="lucideChevronDown"
+                size="1rem"
+                aria-hidden="true"
+                class="transition-transform"
+                [class.rotate-180]="isExpanded(item.route!)"
+              />
+            </button>
+
+            @if (isExpanded(item.route!)) {
+              <ul
+                class="mt-1 ml-3 space-y-1 border-l border-slate-700/60 pl-4"
+                [attr.aria-label]="'Submenú de ' + item.label"
+              >
+                @for (sub of item.children; track sub.route) {
+                  <li>
+                    <a
+                      [routerLink]="sub.route"
+                      routerLinkActive="bg-slate-800 text-white"
+                      #subLink="routerLinkActive"
+                      [attr.aria-current]="subLink.isActive ? 'page' : null"
+                      class="block rounded-lg px-3 py-2 text-sm font-medium text-slate-400 transition hover:bg-slate-800 hover:text-white hover:ring-2 hover:ring-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                      (click)="closed.emit()"
+                    >
+                      {{ sub.label }}
+                    </a>
+                  </li>
+                }
+              </ul>
+            }
+          </li>
+        } @else {
+          <li>
+            <a
+              [routerLink]="item.route"
+              routerLinkActive="bg-primary text-white shadow-md shadow-primary/30"
+              [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
+              #link="routerLinkActive"
+              [attr.aria-current]="link.isActive ? 'page' : null"
+              [title]="item.label"
+              class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-300 transition hover:bg-slate-800 hover:text-white hover:ring-2 hover:ring-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
+              (click)="closed.emit()"
+            >
+              <ng-icon name="{{ item.icon }}" size="1.25rem" aria-hidden="true" />
+              <span class="truncate">{{ item.label }}</span>
+            </a>
+          </li>
+        }
+      }
+    </ul>
+  </nav>
+</aside>

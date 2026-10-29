@@ -1,0 +1,343 @@
+<app-modal
+  [abierto]="abierto()"
+  [ancho]="'3xl'"
+  [titulo]="'Detalle del Precio'"
+  [hintF2]="true"
+  [usuario]="usuario()"
+  (cerrar)="intentarCerrar()"
+>
+  <div appEnterNavigate class="flex max-h-[72vh] flex-col">
+    <div class="scroll-marca overflow-y-auto px-5 py-4">
+      <!-- ══════════ SECCIÓN 1 — COSTEO ══════════
+           Cada celda es [etiqueta | input | sufijo]; dos celdas por fila en
+           pantallas anchas. -->
+      <div class="grid grid-cols-1 gap-x-6 gap-y-2.5 min-[820px]:grid-cols-2">
+        <!-- Canal, sin pareja a la derecha -->
+        <div class="grid grid-cols-[7rem_minmax(0,1fr)] items-center gap-2">
+          <label for="canal-precio" class="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Canal:</label>
+          <input
+            id="canal-precio"
+            type="text"
+            [formControl]="formulario.controls.canal"
+            [readonly]="canalFijo()"
+            placeholder="- Sin canal -"
+            class="h-9 w-full rounded border border-slate-300 px-3 text-sm outline-none focus:border-primary read-only:cursor-not-allowed read-only:bg-slate-100 read-only:text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:read-only:bg-slate-800"
+          />
+        </div>
+        <div class="hidden min-[820px]:block" aria-hidden="true"></div>
+
+        <!-- Precio base ↔ precio bruto -->
+        <div class="grid grid-cols-[7rem_minmax(0,1fr)_3.5rem] items-center gap-2">
+          <label for="precio-base-precio" class="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Precio Base:</label>
+          <input
+            id="precio-base-precio"
+            type="text"
+            inputmode="decimal"
+            [formControl]="formulario.controls.precioBase"
+            placeholder="0.00"
+            class="h-9 w-full rounded border border-slate-300 px-3 text-right text-sm tabular-nums outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+          />
+          <span class="text-[10px] font-semibold uppercase text-slate-400">Sin IGV.</span>
+        </div>
+        <div class="grid grid-cols-[7rem_minmax(0,1fr)_3.5rem] items-center gap-2">
+          <label for="precio-bruto-precio" class="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Precio Bruto:</label>
+          <input
+            id="precio-bruto-precio"
+            type="text"
+            readonly
+            tabindex="-1"
+            [formControl]="formulario.controls.precioBruto"
+            placeholder="0.00"
+            class="h-9 w-full cursor-not-allowed rounded border border-slate-200 bg-slate-100 px-3 text-right text-sm tabular-nums text-slate-700 outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+          />
+          <span class="text-[10px] font-semibold uppercase text-slate-400">Precios.</span>
+        </div>
+
+        <!-- Precio neto ↔ precio costo (el par de la derecha son los "precios calculados") -->
+        <div class="grid grid-cols-[7rem_minmax(0,1fr)_3.5rem] items-center gap-2">
+          <label for="precio-neto-precio" class="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Precio Neto:</label>
+          <input
+            id="precio-neto-precio"
+            type="text"
+            readonly
+            tabindex="-1"
+            [formControl]="formulario.controls.precioNeto"
+            placeholder="0.00"
+            class="h-9 w-full cursor-not-allowed rounded border border-slate-200 bg-slate-100 px-3 text-right text-sm tabular-nums text-slate-700 outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+          />
+          <span class="text-[10px] font-semibold uppercase text-slate-400">Inc. IGV.</span>
+        </div>
+        <div class="grid grid-cols-[7rem_minmax(0,1fr)_3.5rem] items-center gap-2">
+          <span aria-hidden="true"></span>
+          <input
+            id="precio-costo-precio"
+            type="text"
+            readonly
+            tabindex="-1"
+            aria-label="Precio costo calculado"
+            [formControl]="formulario.controls.precioCosto"
+            placeholder="0.00"
+            class="h-9 w-full cursor-not-allowed rounded border border-slate-200 bg-slate-100 px-3 text-right text-sm font-semibold tabular-nums text-slate-700 outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+          />
+          <span class="text-[10px] font-semibold uppercase text-slate-400">Calculados.</span>
+        </div>
+
+        <!-- Unidad ↔ bonificación -->
+        <div class="grid grid-cols-[7rem_minmax(0,1fr)_3.5rem] items-center gap-2">
+          <label for="unidades-precio" class="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Unidad:</label>
+          <input id="unidades-precio" type="text" inputmode="numeric" [formControl]="formulario.controls.unidades" placeholder="1" class="h-9 w-full rounded border border-slate-300 px-3 text-right text-sm tabular-nums outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white" />
+          <span aria-hidden="true"></span>
+        </div>
+        <div class="grid grid-cols-[7rem_minmax(0,1fr)_3.5rem] items-center gap-2">
+          <label for="bonificacion-precio" class="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Bonificación:</label>
+          <input id="bonificacion-precio" type="text" inputmode="numeric" [formControl]="formulario.controls.bonificacion" placeholder="0" class="h-9 w-full rounded border border-slate-300 px-3 text-right text-sm tabular-nums outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white" />
+          <span aria-hidden="true"></span>
+        </div>
+
+        <!-- Descuentos -->
+        <div class="grid grid-cols-[7rem_minmax(0,1fr)_3.5rem] items-center gap-2">
+          <label for="descuento-1er-precio" class="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">% 1er Desc.:</label>
+          <input id="descuento-1er-precio" type="text" inputmode="decimal" [formControl]="formulario.controls.descuento1er" placeholder="0.00" class="h-9 w-full rounded border border-slate-300 px-3 text-right text-sm tabular-nums outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white" />
+          <span aria-hidden="true"></span>
+        </div>
+        <div class="grid grid-cols-[7rem_minmax(0,1fr)_3.5rem] items-center gap-2">
+          <label for="descuento-2do-precio" class="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">% 2do Desc.:</label>
+          <input id="descuento-2do-precio" type="text" inputmode="decimal" [formControl]="formulario.controls.descuento2do" placeholder="0.00" class="h-9 w-full rounded border border-slate-300 px-3 text-right text-sm tabular-nums outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white" />
+          <span aria-hidden="true"></span>
+        </div>
+        <div class="grid grid-cols-[7rem_minmax(0,1fr)_3.5rem] items-center gap-2">
+          <label for="descuento-3er-precio" class="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">% 3er Desc.:</label>
+          <input id="descuento-3er-precio" type="text" inputmode="decimal" [formControl]="formulario.controls.descuento3er" placeholder="0.00" class="h-9 w-full rounded border border-slate-300 px-3 text-right text-sm tabular-nums outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white" />
+          <span aria-hidden="true"></span>
+        </div>
+        <div class="grid grid-cols-[7rem_minmax(0,1fr)_3.5rem] items-center gap-2">
+          <label for="descuento-4to-precio" class="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">% 4to Desc.:</label>
+          <input id="descuento-4to-precio" type="text" inputmode="decimal" [formControl]="formulario.controls.descuento4to" placeholder="0.00" class="h-9 w-full rounded border border-slate-300 px-3 text-right text-sm tabular-nums outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white" />
+          <span aria-hidden="true"></span>
+        </div>
+      </div>
+
+      <div class="my-4 border-t border-slate-200 dark:border-slate-800"></div>
+
+      <!-- ══════════ SECCIÓN 2 — PRECIOS DE VENTA ══════════ -->
+      <div class="grid grid-cols-1 gap-x-6 gap-y-2.5 min-[820px]:grid-cols-2">
+        <div class="grid grid-cols-[7rem_minmax(0,1fr)] items-center gap-2">
+          <label for="precio-unit-venta-precio" class="text-xs font-semibold uppercase leading-tight tracking-wide text-slate-600 dark:text-slate-400">
+            % Precio Unit. Venta: <span class="text-error">*</span>
+          </label>
+          <input
+            id="precio-unit-venta-precio"
+            type="text"
+            readonly
+            tabindex="-1"
+            [formControl]="formulario.controls.precioUnitVenta"
+            placeholder="0.00"
+            class="h-9 w-full cursor-not-allowed rounded border border-slate-200 bg-slate-100 px-3 text-right text-sm tabular-nums text-slate-700 outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+          />
+        </div>
+        <div class="grid grid-cols-[7rem_minmax(0,1fr)] items-center gap-2">
+          <label for="precio-venta-unitario-precio" class="text-xs font-semibold uppercase leading-tight tracking-wide text-slate-600 dark:text-slate-400">
+            Precio Venta Unitario: <span class="text-error">*</span>
+          </label>
+          <div>
+            <input
+              id="precio-venta-unitario-precio"
+              type="text"
+              inputmode="decimal"
+              [formControl]="formulario.controls.precioVentaUnitario"
+              placeholder="0.00"
+              class="h-9 w-full rounded border border-slate-300 px-3 text-right text-sm tabular-nums outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+            />
+            @if (formulario.controls.precioVentaUnitario.touched && formulario.controls.precioVentaUnitario.invalid) {
+              <p class="mt-1 text-xs text-error">Campo obligatorio.</p>
+            }
+          </div>
+        </div>
+
+        <div class="grid grid-cols-[7rem_minmax(0,1fr)] items-center gap-2">
+          <label for="precio-unit-mayor-precio" class="text-xs font-semibold uppercase leading-tight tracking-wide text-slate-600 dark:text-slate-400">
+            % Precio Unit. Mayor: <span class="text-error">*</span>
+          </label>
+          <input
+            id="precio-unit-mayor-precio"
+            type="text"
+            readonly
+            tabindex="-1"
+            [formControl]="formulario.controls.precioUnitMayor"
+            placeholder="0.00"
+            class="h-9 w-full cursor-not-allowed rounded border border-slate-200 bg-slate-100 px-3 text-right text-sm tabular-nums text-slate-700 outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+          />
+        </div>
+        <div class="grid grid-cols-[7rem_minmax(0,1fr)] items-center gap-2">
+          <label for="precio-ref-undo-precio" class="text-xs font-semibold uppercase leading-tight tracking-wide text-slate-600 dark:text-slate-400">
+            Precio Ref. Und. x Doc: <span class="text-error">*</span>
+          </label>
+          <div>
+            <input
+              id="precio-ref-undo-precio"
+              type="text"
+              inputmode="decimal"
+              [formControl]="formulario.controls.precioRefUndDoc"
+              placeholder="0.00"
+              class="h-9 w-full rounded border border-slate-300 px-3 text-right text-sm tabular-nums outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+            />
+            @if (formulario.controls.precioRefUndDoc.touched && formulario.controls.precioRefUndDoc.invalid) {
+              <p class="mt-1 text-xs text-error">Campo obligatorio.</p>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════ SECCIÓN 3 — PRECIOS POR CANTIDAD ══════════ -->
+      <div class="mt-5 overflow-hidden rounded-md border border-slate-200 dark:border-slate-800">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 bg-slate-100 px-4 py-2.5 dark:border-slate-800 dark:bg-slate-800/60">
+          <h4 class="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-slate-700 dark:text-slate-200">
+            <ng-icon name="lucideLayers" size="1rem" class="text-slate-500" />
+            Precios por Cantidad
+          </h4>
+          <button
+            type="button"
+            (click)="agregarRango()"
+            class="inline-flex h-8 items-center gap-1.5 whitespace-nowrap rounded bg-success px-3 text-xs font-semibold text-white transition hover:bg-success-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-success focus-visible:ring-offset-2"
+          >
+            <ng-icon name="lucidePlus" size="0.875rem" /> Agregar rango
+          </button>
+        </div>
+
+        <div class="overflow-x-auto bg-white dark:bg-slate-900">
+          <table class="w-full min-w-[480px] text-left text-xs">
+            <thead>
+              <tr class="border-b border-slate-200 text-slate-500 dark:border-slate-800">
+                <th class="whitespace-nowrap px-4 py-2.5 font-semibold">CANT. DESDE</th>
+                <th class="whitespace-nowrap px-4 py-2.5 text-right font-semibold">PRECIO UNIT.</th>
+                <th class="whitespace-nowrap px-4 py-2.5 text-right font-semibold">% P.UNIT.VENTA</th>
+                <th class="whitespace-nowrap px-4 py-2.5 text-right font-semibold">ACCIONES</th>
+              </tr>
+            </thead>
+            <tbody>
+              @if (rangos().length === 0) {
+                <tr>
+                  <td colspan="4" class="py-6 text-center text-slate-400">Sin rangos registrados.</td>
+                </tr>
+              } @else {
+                @for (rango of rangos(); track $index; let i = $index) {
+                  <tr class="border-b border-slate-100 last:border-0 dark:border-slate-800/50">
+                    @if (editandoIndice() === i) {
+                      <td class="px-4 py-2">
+                        <!-- La cantidad de los rangos base no se cambia. -->
+                        <input
+                          [id]="'rango-cant-' + i"
+                          type="text"
+                          inputmode="numeric"
+                          [value]="rango.desde"
+                          [readonly]="esBase(rango.desde)"
+                          (input)="actualizarRango(i, 'desde', $any($event.target).value)"
+                          class="h-8 w-20 rounded border border-slate-300 px-2 text-sm tabular-nums outline-none focus:border-primary read-only:cursor-not-allowed read-only:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                        />
+                      </td>
+                      <td class="px-4 py-2 text-right">
+                        <input
+                          type="text"
+                          inputmode="decimal"
+                          [value]="rango.precio"
+                          (input)="actualizarRango(i, 'precio', $any($event.target).value)"
+                          class="h-8 w-24 rounded border border-slate-300 px-2 text-right text-sm tabular-nums outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                        />
+                      </td>
+                    } @else {
+                      <td class="whitespace-nowrap px-4 py-2 text-center font-semibold tabular-nums text-slate-700 dark:text-slate-200">{{ rango.desde }}</td>
+                      <td class="whitespace-nowrap px-4 py-2 text-right tabular-nums text-slate-700 dark:text-slate-300">{{ rango.precio.toFixed(2) }}</td>
+                    }
+
+                    <td class="whitespace-nowrap px-4 py-2 text-right font-bold tabular-nums">
+                      @if (variaciones()[i] > 0) {
+                        <span class="text-success">{{ variaciones()[i].toFixed(2) }}</span>
+                      } @else if (variaciones()[i] < 0) {
+                        <span class="text-error">{{ variaciones()[i].toFixed(2) }}</span>
+                      } @else {
+                        <span class="text-slate-400">0.00</span>
+                      }
+                    </td>
+
+                    <td class="whitespace-nowrap px-4 py-2">
+                      <div class="flex justify-end gap-1.5">
+                        @if (editandoIndice() === i) {
+                          <button
+                            type="button"
+                            (click)="confirmarRango()"
+                            title="Confirmar"
+                            aria-label="Confirmar rango"
+                            class="flex h-7 w-7 items-center justify-center rounded bg-success text-white transition hover:bg-success-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-success"
+                          >
+                            <ng-icon name="lucideCheck" size="0.875rem" />
+                          </button>
+                        } @else {
+                          <button
+                            type="button"
+                            (click)="editarRango(i)"
+                            title="Editar rango"
+                            aria-label="Editar rango"
+                            class="flex h-7 w-7 items-center justify-center rounded border border-primary/40 bg-primary/10 text-primary transition hover:bg-primary hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                          >
+                            <ng-icon name="lucidePencil" size="0.875rem" />
+                          </button>
+                        }
+                        <button
+                          type="button"
+                          (click)="eliminarRango(i)"
+                          [disabled]="esBase(rango.desde)"
+                          [title]="esBase(rango.desde) ? 'Los rangos 1 y 3 no se pueden eliminar' : 'Eliminar rango'"
+                          aria-label="Eliminar rango"
+                          class="flex h-7 w-7 items-center justify-center rounded bg-error/10 text-error transition hover:bg-error hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-error/10 disabled:hover:text-error"
+                        >
+                          <ng-icon name="lucideTrash" size="0.875rem" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══════════ SECCIÓN 4 — OBSERVACIONES Y FECHA ══════════ -->
+      <div class="mt-5">
+        <label for="observaciones-costo-precio" class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">
+          Observaciones sobre el Costeo:
+        </label>
+        <textarea
+          id="observaciones-costo-precio"
+          rows="3"
+          [formControl]="formulario.controls.observacionesCosto"
+          class="w-full rounded border border-slate-300 px-3 py-2 text-sm outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+        ></textarea>
+      </div>
+
+      <div class="mt-4">
+        <label for="ultima-variacion-precio" class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">
+          Última Variación de Precio:
+        </label>
+        <input
+          id="ultima-variacion-precio"
+          type="date"
+          [formControl]="formulario.controls.ultimaVariacion"
+          class="h-9 w-full max-w-[240px] rounded border border-slate-300 bg-white px-3 text-sm outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+        />
+      </div>
+    </div>
+
+    <!-- ══════════ FOOTER ══════════ -->
+    <div class="flex items-center justify-end gap-2.5 border-t border-slate-200 px-5 py-4 dark:border-slate-800">
+      <button
+        type="button"
+        appEnterPrimary
+        (click)="emitirGuardar()"
+        class="inline-flex h-10 items-center justify-center gap-2 whitespace-nowrap rounded-md bg-primary px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+      >
+        <ng-icon name="lucideSave" size="1rem" /> Guardar Precio
+      </button>
+    </div>
+  </div>
+</app-modal>

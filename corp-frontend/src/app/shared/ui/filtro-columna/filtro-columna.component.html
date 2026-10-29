@@ -1,0 +1,61 @@
+<button
+  type="button"
+  cdkOverlayOrigin
+  #origen="cdkOverlayOrigin"
+  (click)="alternar()"
+  [attr.aria-expanded]="abierto()"
+  [attr.aria-label]="etiqueta()"
+  [title]="etiqueta()"
+  class="flex h-6 w-6 shrink-0 items-center justify-center rounded-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+  [class.bg-primary]="activo()"
+  [class.text-white]="activo()"
+  [class.text-slate-400]="!activo()"
+  [class.hover:bg-slate-200]="!activo()"
+  [class.hover:text-slate-600]="!activo()"
+  [class.dark:hover:bg-slate-700]="!activo()"
+>
+  <ng-icon name="lucideFunnel" size="0.7rem" />
+</button>
+
+<ng-template
+  cdkConnectedOverlay
+  [cdkConnectedOverlayOrigin]="origen"
+  [cdkConnectedOverlayOpen]="abierto()"
+  [cdkConnectedOverlayViewportMargin]="8"
+  [cdkConnectedOverlayPositions]="[
+    { originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top', offsetY: 4 },
+    { originX: 'start', originY: 'top', overlayX: 'start', overlayY: 'bottom', offsetY: -4 }
+  ]"
+  (overlayOutsideClick)="cerrar()"
+  (detach)="cerrar()"
+>
+  <div
+    (keydown)="onKeydown($event)"
+    class="w-56 rounded-sm border border-slate-200 bg-white p-2.5 shadow-xl dark:border-slate-700 dark:bg-slate-900"
+  >
+    <label [attr.for]="'filtro-' + columna()" class="mb-1.5 block text-[11px] font-bold uppercase tracking-wide text-slate-400">
+      {{ columna() }}
+    </label>
+    <div class="flex items-center gap-1.5">
+      <input
+        #campo
+        [id]="'filtro-' + columna()"
+        type="text"
+        [value]="valor()"
+        (input)="escribir($event)"
+        placeholder="Contiene..."
+        class="h-8 w-full rounded-sm border-0 bg-white px-2.5 text-sm text-slate-900 outline outline-1 outline-slate-300 transition focus:outline-2 focus:outline-primary dark:bg-slate-800 dark:text-white dark:outline-slate-700"
+      />
+      @if (activo()) {
+        <button
+          type="button"
+          (click)="limpiar()"
+          aria-label="Quitar el filtro de esta columna"
+          class="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-slate-100 text-slate-500 transition hover:bg-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:bg-slate-800 dark:text-slate-400"
+        >
+          <ng-icon name="lucideX" size="0.85rem" />
+        </button>
+      }
+    </div>
+  </div>
+</ng-template>

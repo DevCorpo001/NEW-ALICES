@@ -1,0 +1,75 @@
+<div class="flex h-full min-h-0 flex-col gap-3 px-4 max-[576px]:px-2">
+  <div class="shrink-0 flex flex-wrap items-center justify-between gap-3 rounded-sm border border-slate-200 bg-white px-5 py-3.5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <p class="text-xs text-slate-500 dark:text-slate-400">
+      Claves que autorizan operaciones restringidas en caja.
+      <span class="font-semibold tabular-nums text-slate-700 dark:text-slate-200">{{ store.clavesActivas() }}</span>
+      activas de
+      <span class="font-semibold tabular-nums text-slate-700 dark:text-slate-200">{{ store.claves().length }}</span>.
+    </p>
+
+    <button
+      type="button"
+      (click)="agregar()"
+      class="inline-flex h-[42px] items-center gap-2 whitespace-nowrap rounded-sm bg-primary px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+    >
+      <ng-icon name="lucidePlus" size="1rem" />
+      Agregar clave
+    </button>
+  </div>
+
+  <div class="flex flex-1 min-h-0 flex-col overflow-hidden rounded-sm border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <div class="flex-1 min-h-0 overflow-auto scroll-marca">
+      <table class="w-full min-w-[560px] text-left text-xs">
+        <thead class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-800">
+          <tr class="border-b border-slate-200 bg-slate-50 text-slate-500 dark:border-slate-800 dark:bg-slate-800">
+            <th class="whitespace-nowrap px-4 py-3 font-semibold">CONTRASEÑA</th>
+            <th class="whitespace-nowrap px-4 py-3 font-semibold">USUARIO</th>
+            <th class="w-32 whitespace-nowrap px-4 py-3 font-semibold">ESTADO</th>
+            <th class="w-40 whitespace-nowrap px-4 py-3 text-right font-semibold">ACCIONES</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (store.cargando()) {
+            <tr><td colspan="4" class="py-10 text-center text-slate-400">Cargando claves...</td></tr>
+          } @else if (store.error()) {
+            <tr><td colspan="4" class="py-10 text-center text-error">No se pudieron cargar las claves.</td></tr>
+          } @else if (store.claves().length === 0) {
+            <tr><td colspan="4" class="py-10 text-center text-slate-400">Sin claves registradas.</td></tr>
+          } @else {
+            @for (fila of store.claves(); track fila.idClave) {
+              <tr class="border-b border-slate-100 transition last:border-0 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800/50">
+                <td class="whitespace-nowrap px-4 py-3">
+                  <app-clave-oculta [clave]="fila.clave" [de]="fila.usuario" />
+                </td>
+                <td class="whitespace-nowrap px-4 py-3 font-semibold text-slate-800 dark:text-slate-200">{{ fila.usuario }}</td>
+                <td class="whitespace-nowrap px-4 py-3">
+                  <app-estado-chip [activo]="fila.estado === 'A'" />
+                </td>
+                <td class="whitespace-nowrap px-4 py-3">
+                  <div class="flex items-center justify-end gap-2">
+                    <app-boton-accion
+                      icono="lucideSquarePen"
+                      [etiqueta]="'Editar la clave de ' + fila.usuario"
+                      (accion)="editar(fila)"
+                    />
+                    <app-boton-accion
+                      icono="lucideArrowLeftRight"
+                      [etiqueta]="(fila.estado === 'A' ? 'Desactivar' : 'Activar') + ' la clave de ' + fila.usuario"
+                      [tono]="fila.estado === 'A' ? 'peligro' : 'exito'"
+                      (accion)="store.alternarClave(fila.idClave)"
+                    />
+                    <app-boton-accion
+                      icono="lucidePrinter"
+                      [etiqueta]="'Imprimir la clave de ' + fila.usuario"
+                      (accion)="imprimir(fila)"
+                    />
+                  </div>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

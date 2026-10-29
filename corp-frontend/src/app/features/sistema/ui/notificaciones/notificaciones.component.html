@@ -1,0 +1,74 @@
+<section class="mx-auto flex h-full min-h-0 w-full max-w-3xl flex-col gap-3 bg-slate-50 px-4 py-1 dark:bg-slate-950 max-[576px]:px-2">
+
+  <div class="shrink-0 flex flex-col gap-3 rounded-sm border border-slate-200 bg-white px-5 py-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <label for="nueva-notificacion" class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+      Nueva notificación
+    </label>
+    <textarea
+      id="nueva-notificacion"
+      rows="4"
+      [value]="borrador()"
+      (input)="escribir($event)"
+      placeholder="Escribe tu mensaje aquí"
+      class="w-full resize-y rounded-sm border-0 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm outline outline-1 outline-slate-300 transition placeholder:text-slate-400 focus:outline-2 focus:outline-primary dark:bg-slate-800 dark:text-white dark:outline-slate-700"
+    ></textarea>
+    <button
+      type="button"
+      (click)="enviar()"
+      [disabled]="!puedeEnviar()"
+      class="inline-flex h-[42px] items-center justify-center gap-2 rounded-sm bg-primary px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+    >
+      <ng-icon name="lucideSend" size="1rem" />
+      Enviar
+    </button>
+  </div>
+
+  <div class="flex flex-1 min-h-0 flex-col overflow-hidden rounded-sm border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <div class="shrink-0 flex items-center justify-between gap-3 border-b border-slate-200 px-5 py-3 dark:border-slate-800">
+      <h2 class="text-sm font-bold uppercase tracking-wide text-slate-700 dark:text-slate-200">
+        Mensajes registrados
+      </h2>
+      <span class="text-xs tabular-nums text-slate-500">{{ store.total() }}</span>
+    </div>
+
+    <div class="flex-1 min-h-0 overflow-auto scroll-marca">
+      <table class="w-full min-w-[520px] text-left text-xs">
+        <thead class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-800">
+          <tr class="border-b border-slate-200 bg-slate-50 text-slate-500 dark:border-slate-800 dark:bg-slate-800">
+            <th class="px-4 py-3 font-semibold">MENSAJE</th>
+            <th class="w-44 whitespace-nowrap px-4 py-3 font-semibold">FECHA / HORA</th>
+            <th class="w-24 whitespace-nowrap px-4 py-3 text-right font-semibold">ACCIONES</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (store.notificaciones().length === 0) {
+            <tr>
+              <td colspan="3" class="py-10 text-center text-slate-400">
+                Todavía no se ha enviado ninguna notificación.
+              </td>
+            </tr>
+          } @else {
+            @for (fila of store.notificaciones(); track fila.idNotificacion) {
+              <tr class="border-b border-slate-100 transition last:border-0 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800/50">
+                <td class="px-4 py-3 text-slate-700 dark:text-slate-300">{{ fila.mensaje }}</td>
+                <td class="whitespace-nowrap px-4 py-3 tabular-nums text-slate-500">
+                  {{ fila.enviadoEn | date: 'dd/MM/yyyy HH:mm' }}
+                </td>
+                <td class="whitespace-nowrap px-4 py-3">
+                  <div class="flex items-center justify-end">
+                    <app-boton-accion
+                      icono="lucideTrash2"
+                      etiqueta="Eliminar la notificación"
+                      tono="peligro"
+                      (accion)="eliminar(fila)"
+                    />
+                  </div>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>

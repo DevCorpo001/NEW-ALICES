@@ -5,7 +5,6 @@ using Alices.Application;
 using Alices.Infrastructure;
 using Alices.Infrastructure.Authentication;
 using Alices.API.Middleware;
-using Alices.API.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.RateLimiting;
@@ -111,6 +110,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseForwardedHeaders();
 app.UseCors("Angular");
+app.UseStaticFiles();
 app.UseCustomExceptionHandler();
 app.UseAuthentication();
 app.UseAuthorization();

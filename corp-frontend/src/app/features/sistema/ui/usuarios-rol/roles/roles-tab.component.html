@@ -1,0 +1,154 @@
+<div class="flex h-full min-h-0 flex-col gap-3 px-4 max-[576px]:px-2">
+
+  <div
+    appEnterNavigate
+    class="flex shrink-0 flex-wrap items-end gap-3.5 rounded-sm border border-slate-200 bg-white px-5 py-4 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+  >
+    <div class="min-w-[200px] flex-1">
+      <label for="buscar-rol" class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+        Buscar rol
+      </label>
+      <div class="relative">
+        <input
+          id="buscar-rol"
+          type="text"
+          [value]="store.texto()"
+          (input)="cambiarTexto($event)"
+          placeholder="CÓDIGO, NOMBRE O DESCRIPCIÓN"
+          class="h-[42px] w-full rounded-sm border-0 bg-white px-3.5 pr-10 text-sm text-slate-900 shadow-sm outline outline-1 outline-slate-300 transition placeholder:text-slate-400 focus:outline-2 focus:outline-primary dark:bg-slate-800 dark:text-white dark:outline-slate-700"
+        />
+        <ng-icon
+          name="lucideSearch"
+          size="1rem"
+          class="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400"
+        />
+      </div>
+    </div>
+
+    <div class="min-w-[200px] flex-1">
+      <label for="filtro-permisos" class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+        Permisos
+      </label>
+      <select
+        id="filtro-permisos"
+        [value]="store.cobertura()"
+        (change)="cambiarCobertura($event)"
+        class="h-[42px] w-full cursor-pointer rounded-sm border-0 bg-white px-3.5 text-sm text-slate-900 shadow-sm outline outline-1 outline-slate-300 transition focus:outline-2 focus:outline-primary dark:bg-slate-800 dark:text-white dark:outline-slate-700"
+      >
+        <option value="todos">Mostrar todos</option>
+        <option value="completo">Con todos los permisos ({{ store.conteoCobertura().completo }})</option>
+        <option value="parcial">Permisos parciales ({{ store.conteoCobertura().parcial }})</option>
+        <option value="ninguno">Sin permisos ({{ store.conteoCobertura().ninguno }})</option>
+      </select>
+    </div>
+
+    <div class="flex shrink-0 items-end gap-2.5">
+      <app-columnas-visibles [columnas]="columnas" [(ocultas)]="store.columnasOcultas" />
+
+      <button
+        type="button"
+        (click)="store.limpiar()"
+        [disabled]="!store.hayFiltros()"
+        class="inline-flex h-[42px] items-center gap-2 whitespace-nowrap rounded-sm border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+      >
+        <ng-icon name="lucideEraser" size="1rem" />
+        Limpiar
+      </button>
+      <button
+        type="button"
+        (click)="agregarRol()"
+        class="inline-flex h-[42px] items-center gap-2 whitespace-nowrap rounded-sm bg-primary px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+      >
+        <ng-icon name="lucidePlus" size="1rem" />
+        Agregar rol
+      </button>
+    </div>
+  </div>
+
+  <div class="flex flex-1 min-h-0 flex-col overflow-hidden rounded-sm border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <div class="flex-1 min-h-0 overflow-auto scroll-marca">
+      <table class="w-full min-w-[640px] text-left text-xs">
+        <thead class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-800">
+          <tr class="border-b border-slate-200 bg-slate-50 text-slate-500 dark:border-slate-800 dark:bg-slate-800">
+            @if (esVisible('codigo')) { <th class="whitespace-nowrap px-4 py-2.5 font-semibold">CÓDIGO</th> }
+            @if (esVisible('nombre')) { <th class="whitespace-nowrap px-4 py-2.5 font-semibold">ROL</th> }
+            @if (esVisible('descripcion')) { <th class="whitespace-nowrap px-4 py-2.5 font-semibold">DESCRIPCIÓN</th> }
+            @if (esVisible('usuarios')) { <th class="whitespace-nowrap px-4 py-2.5 text-right font-semibold">USUARIOS</th> }
+            @if (esVisible('permisos')) { <th class="whitespace-nowrap px-4 py-2.5 font-semibold">PERMISOS</th> }
+            @if (esVisible('estado')) { <th class="whitespace-nowrap px-4 py-2.5 font-semibold">ESTADO</th> }
+          </tr>
+        </thead>
+        <tbody>
+          @if (store.cargando()) {
+            <tr><td [attr.colspan]="visibles()" class="py-8 text-center text-slate-400">Cargando roles...</td></tr>
+          } @else if (store.error()) {
+            <tr><td [attr.colspan]="visibles()" class="py-8 text-center text-error">No se pudieron cargar los roles.</td></tr>
+          } @else if (store.resultados().length === 0) {
+            <tr>
+              <td [attr.colspan]="visibles()" class="py-8 text-center text-slate-400">
+                @if (store.hayFiltros()) {
+                  Ningún rol coincide con los filtros.
+                } @else {
+                  Sin roles registrados.
+                }
+              </td>
+            </tr>
+          } @else {
+            @for (fila of store.resultados(); track fila.idRol) {
+              <tr class="border-b border-slate-100 transition last:border-0 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800/50">
+                @if (esVisible('codigo')) {
+                  <td class="whitespace-nowrap px-4 py-2.5 font-semibold text-slate-800 dark:text-slate-200">{{ fila.codigo }}</td>
+                }
+                @if (esVisible('nombre')) {
+                  <td class="whitespace-nowrap px-4 py-2.5 text-slate-700 dark:text-slate-300">{{ fila.nombre }}</td>
+                }
+                @if (esVisible('descripcion')) {
+                  <td class="px-4 py-2.5 text-slate-500 dark:text-slate-400">{{ fila.descripcion }}</td>
+                }
+                @if (esVisible('usuarios')) {
+                  <td class="whitespace-nowrap px-4 py-2.5 text-right tabular-nums text-slate-600 dark:text-slate-300">{{ fila.usuarios }}</td>
+                }
+                @if (esVisible('permisos')) {
+                  <td class="whitespace-nowrap px-4 py-2.5">
+                    <span
+                      class="inline-flex items-center gap-1.5 rounded-sm px-2 py-0.5 text-[11px] font-bold uppercase"
+                      [class.bg-success-light]="coberturaDe(fila) === 'completo'"
+                      [class.text-success]="coberturaDe(fila) === 'completo'"
+                      [class.bg-amber-50]="coberturaDe(fila) === 'parcial'"
+                      [class.text-amber-600]="coberturaDe(fila) === 'parcial'"
+                      [class.bg-slate-100]="coberturaDe(fila) === 'ninguno'"
+                      [class.text-slate-500]="coberturaDe(fila) === 'ninguno'"
+                      [class.dark:bg-slate-800]="coberturaDe(fila) === 'ninguno'"
+                    >
+                      {{ etiquetas[coberturaDe(fila)] }}
+                      <span class="tabular-nums opacity-70">{{ fila.permisos }}/{{ fila.totalPermisos }}</span>
+                    </span>
+                  </td>
+                }
+                @if (esVisible('estado')) {
+                  <td class="whitespace-nowrap px-4 py-2.5">
+                    <span
+                      class="inline-flex rounded-sm px-2 py-0.5 text-[11px] font-bold uppercase"
+                      [class.bg-success-light]="fila.estado === 'A'"
+                      [class.text-success]="fila.estado === 'A'"
+                      [class.bg-slate-100]="fila.estado !== 'A'"
+                      [class.text-slate-500]="fila.estado !== 'A'"
+                      [class.dark:bg-slate-800]="fila.estado !== 'A'"
+                    >
+                      {{ fila.estado === 'A' ? 'Activo' : 'Inactivo' }}
+                    </span>
+                  </td>
+                }
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="shrink-0 border-t border-slate-200 px-5 py-2.5 text-xs text-slate-500 dark:border-slate-800">
+      Mostrando <span class="font-semibold tabular-nums">{{ store.resultados().length }}</span>
+      de <span class="font-semibold tabular-nums">{{ store.total() }}</span> roles
+    </div>
+  </div>
+</div>
