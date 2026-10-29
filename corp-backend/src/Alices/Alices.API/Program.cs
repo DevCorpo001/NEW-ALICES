@@ -103,7 +103,9 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-    await app.ApplyMigrationsAsync();
+    if (builder.Configuration.GetValue<bool>("Database:AutoMigrate"))
+        await app.ApplyMigrationsAsync();
+
     app.MapOpenApi();
 }
 
